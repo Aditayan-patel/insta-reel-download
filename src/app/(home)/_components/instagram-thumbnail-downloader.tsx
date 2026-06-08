@@ -95,7 +95,10 @@ export function InstagramThumbnailDownloader() {
   };
 
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-teal-500/30 dark:border-neutral-800 dark:bg-black/80 p-5 shadow-sm">
+    <div className="group relative rounded-2xl border border-neutral-200 bg-teal-500/30 dark:border-neutral-800 dark:bg-black/80 p-5 shadow-sm transition-all duration-500">
+      {/* Bottom shimmer line - added hover effect */}
+      <div className="absolute bottom-0 left-1/2 h-0.5 w-0 -translate-x-1/2 rounded-full bg-gradient-to-r from-orange-400 via-pink-400 to-orange-400 transition-all duration-500 group-hover:w-3/5" />
+
       {/* Header */}
       <div className="flex items-center gap-3 mb-5">
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-orange-400 to-pink-500 shadow-sm">
