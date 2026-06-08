@@ -22,9 +22,9 @@ export function Hero() {
         // Scroll to form smoothly
         formRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       }
-    } catch (err) {
-      console.log("Clipboard access denied");
-    }
+    } catch {
+  console.log("Clipboard access denied");
+}
   };
 
   return (
@@ -118,7 +118,7 @@ export function Hero() {
               <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-teal-400 via-emerald-400 to-blue-400 opacity-20 blur-xl transition-all duration-500 group-hover/form:opacity-40 dark:from-teal-600 dark:via-emerald-600 dark:to-blue-600" />
               
               {/* Form Card */}
-              <div className="relative rounded-2xl border border-slate-200/80 bg-white/90 p-2 backdrop-blur-xl transition-all duration-300 group-hover/form:border-teal-300/80 dark:border-slate-800/80 dark:bg-slate-900/90 dark:group-hover/form:border-teal-700/80">
+              <div className="relative rounded-2xl border border-slate-200/80 bg-teal-500/30 p-2 backdrop-blur-xl transition-all duration-300 group-hover/form:border-teal-300/80 dark:border-slate-800/80 dark:bg-black/80 dark:group-hover/form:border-teal-700/80">
                 <InstagramForm 
                   className="w-full" 
                   pastedUrl={pastedUrl}

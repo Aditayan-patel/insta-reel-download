@@ -59,8 +59,6 @@ function triggerDownload(videoUrl: string) {
   proxyUrl.searchParams.append("url", videoUrl);
   proxyUrl.searchParams.append("filename", filename);
 
-  console.log("Using proxy URL:", proxyUrl.toString());
-
   const link = document.createElement("a");
   link.href = proxyUrl.toString();
   link.target = "_blank";
@@ -91,6 +89,9 @@ export function InstagramForm(props: InstagramFormProps) {
   const previousPastedUrl = React.useRef<string>("");
 
   const t = useTranslations("components.instagramForm");
+
+  // Destructure props for useEffect dependency
+  const { pastedUrl, onUrlConsumed, className } = props;
 
   const {
     isError,
@@ -212,44 +213,32 @@ export function InstagramForm(props: InstagramFormProps) {
     }
   }
 
-  // ⭐ FIXED: Jab Hero se pastedUrl aaye to input mein set karo with shouldDirty
+  // Jab Hero se pastedUrl aaye to input mein set karo with shouldDirty
   React.useEffect(() => {
-    if (props.pastedUrl && props.pastedUrl !== previousPastedUrl.current) {
-      previousPastedUrl.current = props.pastedUrl;
+    if (pastedUrl && pastedUrl !== previousPastedUrl.current) {
+      previousPastedUrl.current = pastedUrl;
       
-      // ⭐ IMPORTANT: shouldDirty true karo taaki Download button enable ho
-      form.setValue("url", props.pastedUrl, { 
+      form.setValue("url", pastedUrl, { 
         shouldDirty: true,
         shouldValidate: true,
       });
       form.clearErrors("url");
       
-      // URL consume ho gaya, Hero ko bata do
-      props.onUrlConsumed?.();
+      onUrlConsumed?.();
       
-      // Thoda delay se focus karo
       setTimeout(() => {
         inputRef.current?.focus();
       }, 100);
     }
-  }, [props.pastedUrl]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pastedUrl]);
 
   React.useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
-  // ⭐ DEBUG LOG - production mein hata dena
-  React.useEffect(() => {
-    console.log("Form State:", {
-      isDirty: form.formState.isDirty,
-      url: form.watch("url"),
-      isDisabled,
-      pastedUrl: props.pastedUrl,
-    });
-  }, [form.formState.isDirty, form.watch("url"), isDisabled, props.pastedUrl]);
-
   return (
-    <div className={cn("w-full space-y-2", props.className)}>
+    <div className={cn("w-full space-y-2", className)}>
       {/* Error Message */}
       {errorMessage ? (
         <div className="flex items-center gap-2 rounded-lg border border-red-200/80 bg-red-50/80 px-3 py-2 text-sm text-red-600 backdrop-blur-sm dark:border-red-800/80 dark:bg-red-950/50 dark:text-red-400">

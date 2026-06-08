@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Download, Loader2, Link2, Search, ImagePlus, Image, ExternalLink } from "lucide-react";
+import { Download, Loader2, Link2, Search, ImagePlus, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";

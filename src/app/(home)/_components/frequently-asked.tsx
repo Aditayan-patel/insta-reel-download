@@ -1,7 +1,7 @@
 import React from "react";
 
 import { useTranslations } from "next-intl";
-import { HelpCircle, Shield, MessageCircleQuestion } from "lucide-react";
+import { HelpCircle, Shield } from "lucide-react";
 
 import {
   Accordion,

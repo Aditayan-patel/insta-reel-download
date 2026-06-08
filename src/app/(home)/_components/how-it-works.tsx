@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
 
-import { Copy, Download, Clipboard, ArrowRight, Sparkles } from "lucide-react";
+import { Copy, Download, Clipboard, ArrowRight } from "lucide-react";
 
 import { homeLinks, homeSections } from "@/lib/constants";
 

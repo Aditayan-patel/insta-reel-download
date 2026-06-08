@@ -18,7 +18,7 @@ import { LogoImage, LogoText } from "@/components/logo";
 import { LocaleDropdown } from "@/features/i18n/locale-dropdown";
 import { ThemeToggleButton } from "@/features/theme/theme-toggle-button";
 
-import { Menu, Wrench, Sun, Moon, Languages } from "lucide-react";
+import { Menu, Wrench, Sun, Moon } from "lucide-react";
 
 import { homeLinks } from "@/lib/constants";
 
@@ -41,8 +41,8 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-200/80 bg-white/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/60 dark:border-slate-800/80 dark:bg-gray-950/80 dark:supports-[backdrop-filter]:bg-gray-950/60">
       {/* Subtle Bottom Gradient Line */}
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-teal-300/50 to-transparent dark:via-teal-700/50" />
-      
+      <div className="absolute right-0 bottom-0 left-0 h-px bg-gradient-to-r from-transparent via-teal-300/50 to-transparent dark:via-teal-700/50" />
+
       <div className="container mx-auto flex h-16 items-center px-4 md:px-6">
         {/* Logo */}
         <div
@@ -62,29 +62,29 @@ export function Header() {
           {/* Tools Link */}
           <a
             href="#tools"
-            className="relative rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-all duration-200 hover:text-teal-600 hover:bg-teal-50/80 dark:text-slate-400 dark:hover:text-teal-400 dark:hover:bg-teal-950/50"
+            className="relative rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-all duration-200 hover:bg-teal-50/80 hover:text-teal-600 dark:text-slate-400 dark:hover:bg-teal-950/50 dark:hover:text-teal-400"
           >
             <span className="flex items-center gap-1.5">
               <Wrench className="h-3.5 w-3.5" />
-              {t("links.tools") || "Tools"}
+              Tools
             </span>
           </a>
 
           <a
             href={homeLinks.features}
-            className="relative rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-all duration-200 hover:text-teal-600 hover:bg-teal-50/80 dark:text-slate-400 dark:hover:text-teal-400 dark:hover:bg-teal-950/50"
+            className="relative rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-all duration-200 hover:bg-teal-50/80 hover:text-teal-600 dark:text-slate-400 dark:hover:bg-teal-950/50 dark:hover:text-teal-400"
           >
             {t("links.features")}
           </a>
           <a
             href={homeLinks.howItWorks}
-            className="relative rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-all duration-200 hover:text-teal-600 hover:bg-teal-50/80 dark:text-slate-400 dark:hover:text-teal-400 dark:hover:bg-teal-950/50"
+            className="relative rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-all duration-200 hover:bg-teal-50/80 hover:text-teal-600 dark:text-slate-400 dark:hover:bg-teal-950/50 dark:hover:text-teal-400"
           >
             {t("links.howItWorks")}
           </a>
           <a
             href={homeLinks.frequentlyAsked}
-            className="relative rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-all duration-200 hover:text-teal-600 hover:bg-teal-50/80 dark:text-slate-400 dark:hover:text-teal-400 dark:hover:bg-teal-950/50"
+            className="relative rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-all duration-200 hover:bg-teal-50/80 hover:text-teal-600 dark:text-slate-400 dark:hover:bg-teal-950/50 dark:hover:text-teal-400"
           >
             {t("links.frequentlyAsked")}
           </a>
@@ -99,16 +99,16 @@ export function Header() {
         <div className="ml-auto flex items-center gap-1.5 md:hidden">
           {/* Theme Toggle - Mobile */}
           <ThemeToggleButton />
-          
+
           {/* Locale Dropdown - Mobile */}
           <LocaleDropdown />
 
           {/* Mobile Menu Button */}
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 className="relative h-9 w-9 rounded-lg border border-slate-200/80 bg-white/80 backdrop-blur-sm transition-all duration-200 hover:border-teal-300 hover:bg-teal-50/80 hover:text-teal-600 dark:border-slate-800/80 dark:bg-slate-900/80 dark:hover:border-teal-700 dark:hover:bg-teal-950/50 dark:hover:text-teal-400"
               >
                 <Menu className="h-4 w-4" />
@@ -121,10 +121,10 @@ export function Header() {
             >
               {/* Sheet Background Pattern */}
               <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]" />
-              
+
               {/* Sheet Top Gradient Line */}
-              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-teal-300/50 to-transparent dark:via-teal-700/50" />
-              
+              <div className="absolute top-0 right-0 left-0 h-px bg-gradient-to-r from-transparent via-teal-300/50 to-transparent dark:via-teal-700/50" />
+
               <div className="relative flex h-full flex-col">
                 <SheetHeader className="border-b border-slate-200/80 pb-5 dark:border-slate-800/80">
                   <SheetTitle>
@@ -146,10 +146,10 @@ export function Header() {
                     className="group relative flex items-center rounded-xl px-4 py-3 text-base font-medium text-slate-700 transition-all duration-200 hover:bg-teal-50/80 hover:text-teal-600 dark:text-slate-300 dark:hover:bg-teal-950/50 dark:hover:text-teal-400"
                     onClick={() => setOpen(false)}
                   >
-                    <span className="absolute left-0 top-1/2 h-0 w-0.5 -translate-y-1/2 rounded-full bg-gradient-to-b from-teal-400 to-emerald-400 opacity-0 transition-all duration-200 group-hover:h-3/4 group-hover:opacity-100" />
+                    <span className="absolute top-1/2 left-0 h-0 w-0.5 -translate-y-1/2 rounded-full bg-gradient-to-b from-teal-400 to-emerald-400 opacity-0 transition-all duration-200 group-hover:h-3/4 group-hover:opacity-100" />
                     <span className="flex items-center gap-2.5">
                       <Wrench className="h-4 w-4 text-teal-500" />
-                      {t("links.tools") || "Tools"}
+                      Tools
                     </span>
                   </a>
 
@@ -158,7 +158,7 @@ export function Header() {
                     className="group relative flex items-center rounded-xl px-4 py-3 text-base font-medium text-slate-700 transition-all duration-200 hover:bg-teal-50/80 hover:text-teal-600 dark:text-slate-300 dark:hover:bg-teal-950/50 dark:hover:text-teal-400"
                     onClick={() => setOpen(false)}
                   >
-                    <span className="absolute left-0 top-1/2 h-0 w-0.5 -translate-y-1/2 rounded-full bg-gradient-to-b from-teal-400 to-emerald-400 opacity-0 transition-all duration-200 group-hover:h-3/4 group-hover:opacity-100" />
+                    <span className="absolute top-1/2 left-0 h-0 w-0.5 -translate-y-1/2 rounded-full bg-gradient-to-b from-teal-400 to-emerald-400 opacity-0 transition-all duration-200 group-hover:h-3/4 group-hover:opacity-100" />
                     <span className="flex items-center gap-2.5">
                       <span className="text-teal-500">✦</span>
                       {t("links.features")}
@@ -170,7 +170,7 @@ export function Header() {
                     className="group relative flex items-center rounded-xl px-4 py-3 text-base font-medium text-slate-700 transition-all duration-200 hover:bg-teal-50/80 hover:text-teal-600 dark:text-slate-300 dark:hover:bg-teal-950/50 dark:hover:text-teal-400"
                     onClick={() => setOpen(false)}
                   >
-                    <span className="absolute left-0 top-1/2 h-0 w-0.5 -translate-y-1/2 rounded-full bg-gradient-to-b from-teal-400 to-emerald-400 opacity-0 transition-all duration-200 group-hover:h-3/4 group-hover:opacity-100" />
+                    <span className="absolute top-1/2 left-0 h-0 w-0.5 -translate-y-1/2 rounded-full bg-gradient-to-b from-teal-400 to-emerald-400 opacity-0 transition-all duration-200 group-hover:h-3/4 group-hover:opacity-100" />
                     <span className="flex items-center gap-2.5">
                       <span className="text-teal-500">◈</span>
                       {t("links.howItWorks")}
@@ -182,7 +182,7 @@ export function Header() {
                     className="group relative flex items-center rounded-xl px-4 py-3 text-base font-medium text-slate-700 transition-all duration-200 hover:bg-teal-50/80 hover:text-teal-600 dark:text-slate-300 dark:hover:bg-teal-950/50 dark:hover:text-teal-400"
                     onClick={() => setOpen(false)}
                   >
-                    <span className="absolute left-0 top-1/2 h-0 w-0.5 -translate-y-1/2 rounded-full bg-gradient-to-b from-teal-400 to-emerald-400 opacity-0 transition-all duration-200 group-hover:h-3/4 group-hover:opacity-100" />
+                    <span className="absolute top-1/2 left-0 h-0 w-0.5 -translate-y-1/2 rounded-full bg-gradient-to-b from-teal-400 to-emerald-400 opacity-0 transition-all duration-200 group-hover:h-3/4 group-hover:opacity-100" />
                     <span className="flex items-center gap-2.5">
                       <span className="text-teal-500">◉</span>
                       {t("links.frequentlyAsked")}
@@ -195,7 +195,7 @@ export function Header() {
                   <div className="flex items-center justify-between rounded-xl bg-slate-50/80 px-4 py-3 backdrop-blur-sm dark:bg-slate-900/50">
                     <span className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
                       <Sun className="h-4 w-4 text-amber-500 dark:hidden" />
-                      <Moon className="h-4 w-4 text-blue-400 hidden dark:block" />
+                      <Moon className="hidden h-4 w-4 text-blue-400 dark:block" />
                       {t("themeLabel")}
                     </span>
                     <ThemeToggleButton />

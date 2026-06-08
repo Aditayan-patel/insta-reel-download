@@ -52,7 +52,9 @@ export function InstagramBulkDownloader() {
         }
         setProgress(((i + 1) / validUrls.length) * 100);
         await new Promise(resolve => setTimeout(resolve, 800));
-      } catch (err) { console.error(`Failed URL ${i + 1}`); }
+      } catch {
+  console.error(`Failed to download URL ${i + 1}`);
+}
     }
     setDownloading(false);
     toast.success(`Downloaded ${completedCount} files!`);
