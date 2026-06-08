@@ -4,9 +4,9 @@ import React from "react";
 
 import { useTranslations } from "next-intl";
 
-import { ArrowDown, Sparkles, Zap, Shield, Download, ClipboardPaste } from "lucide-react";
+import { Sparkles, Zap, Shield, Download, ClipboardPaste } from "lucide-react";
 
-import { homeLinks, homeSections } from "@/lib/constants";
+import { homeSections } from "@/lib/constants";
 import { InstagramForm } from "@/components/instagram-form";
 
 export function Hero() {
@@ -19,12 +19,11 @@ export function Hero() {
       const text = await navigator.clipboard.readText();
       if (text && text.includes("instagram.com")) {
         setPastedUrl(text);
-        // Scroll to form smoothly
         formRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       }
     } catch {
-  console.log("Clipboard access denied");
-}
+      console.log("Clipboard access denied");
+    }
   };
 
   return (
@@ -50,7 +49,7 @@ export function Hero() {
       </div>
 
       <div className="container relative mx-auto px-4 md:px-6">
-        <div className="flex flex-col items-center space-y-10 text-center">
+        <div className="flex flex-col items-center space-y-8 text-center">
           {/* Badge */}
           <div className="group inline-flex items-center gap-2 rounded-full border border-teal-200/60 bg-teal-50/80 px-4 py-1.5 text-sm font-medium text-teal-700 backdrop-blur-sm transition-all duration-300 hover:border-teal-300 hover:shadow-lg hover:shadow-teal-100/50 dark:border-teal-800/60 dark:bg-teal-950/50 dark:text-teal-300 dark:hover:shadow-teal-900/50">
             <span className="relative flex h-2 w-2">
@@ -66,7 +65,6 @@ export function Hero() {
             <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl md:text-6xl lg:text-7xl dark:text-white">
               <span className="relative inline-block">
                 {t("title")}
-                {/* Gradient underline */}
                 <svg
                   className="absolute -bottom-3 left-0 w-full"
                   viewBox="0 0 400 12"
@@ -95,30 +93,27 @@ export function Hero() {
           </div>
 
           {/* Instagram Form Section */}
-          <div className="w-full max-w-2xl space-y-4" ref={formRef}>
-            {/* Paste Button - Modern Style */}
+          <div className="w-full max-w-2xl space-y-3" ref={formRef}>
+            {/* Paste Button */}
             <div className="flex justify-center">
               <button
                 onClick={handlePaste}
-                className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full border border-slate-200/80 bg-white/80 px-5 py-2.5 text-sm font-medium text-slate-600 backdrop-blur-sm transition-all duration-300 hover:border-teal-300 hover:bg-teal-50 hover:text-teal-600 hover:shadow-lg hover:shadow-teal-100/50 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-400 dark:hover:border-teal-700 dark:hover:bg-teal-950/50 dark:hover:text-teal-400"
+                className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full border border-teal-300 bg-teal-500/20 px-5 py-2.5 text-sm font-medium text-teal-600 backdrop-blur-sm transition-all duration-300 hover:border-teal-500 hover:bg-teal-100 hover:text-teal-700 hover:shadow-lg dark:border-teal-700 dark:bg-teal-950/50 dark:text-teal-400 dark:hover:border-teal-500 dark:hover:bg-teal-900/50 dark:hover:text-teal-300"
               >
                 <ClipboardPaste className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
                 <span>Paste Instagram Link</span>
                 <span className="ml-1 rounded-md bg-teal-100 px-1.5 py-0.5 text-xs text-teal-600 dark:bg-teal-900/50 dark:text-teal-400">
                   Ctrl+V
                 </span>
-                {/* Button shine */}
                 <div className="absolute inset-0 -translate-x-full rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
               </button>
             </div>
 
             {/* Form with Glow Effect */}
             <div className="relative group/form">
-              {/* Outer Glow */}
               <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-teal-400 via-emerald-400 to-blue-400 opacity-20 blur-xl transition-all duration-500 group-hover/form:opacity-40 dark:from-teal-600 dark:via-emerald-600 dark:to-blue-600" />
               
-              {/* Form Card */}
-              <div className="relative rounded-2xl border border-slate-200/80 bg-teal-500/30 p-2 backdrop-blur-xl transition-all duration-300 group-hover/form:border-teal-300/80 dark:border-slate-800/80 dark:bg-black/80 dark:group-hover/form:border-teal-700/80">
+             <div className="relative rounded-2xl border border-slate-200/80 bg-teal-500/30 p-2 backdrop-blur-xl transition-all duration-300 group-hover/form:border-teal-300/80 dark:border-slate-800/80 dark:bg-black/80 dark:group-hover/form:border-teal-700/80">
                 <InstagramForm 
                   className="w-full" 
                   pastedUrl={pastedUrl}
@@ -134,7 +129,7 @@ export function Hero() {
           </div>
 
           {/* Trust Indicators */}
-          <div className="flex flex-wrap items-center justify-center gap-6 md:gap-10">
+          <div className="flex flex-wrap items-center justify-center gap-10 md:gap-18">
             {[
               { icon: Shield, text: "100% Secure" },
               { icon: Zap, text: "Lightning Fast" },
@@ -147,24 +142,6 @@ export function Hero() {
                 <span>{item.text}</span>
               </div>
             ))}
-          </div>
-
-          {/* Scroll Down Indicator */}
-          <div className="pt-6">
-            <a 
-              href={homeLinks.howItWorks}
-              className="group inline-flex flex-col items-center gap-3"
-            >
-              <span className="text-sm font-medium text-slate-500 transition-colors duration-200 group-hover:text-teal-600 dark:text-slate-400 dark:group-hover:text-teal-400">
-                {t("learnMore")}
-              </span>
-              <div className="relative">
-                <div className="absolute inset-0 rounded-full bg-teal-400/20 blur-xl transition-all duration-300 group-hover:bg-teal-400/30" />
-                <div className="relative flex h-12 w-12 items-center justify-center rounded-full border-2 border-teal-200/80 bg-white/80 backdrop-blur-sm transition-all duration-300 group-hover:border-teal-400 group-hover:shadow-lg group-hover:shadow-teal-200/50 dark:border-teal-800/80 dark:bg-slate-900/80 dark:group-hover:border-teal-600 dark:group-hover:shadow-teal-900/50">
-                  <ArrowDown className="h-5 w-5 text-teal-500 transition-all duration-300 group-hover:translate-y-0.5 group-hover:text-teal-600 dark:text-teal-400 dark:group-hover:text-teal-500" />
-                </div>
-              </div>
-            </a>
           </div>
         </div>
       </div>

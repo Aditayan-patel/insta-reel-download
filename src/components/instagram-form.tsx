@@ -90,7 +90,6 @@ export function InstagramForm(props: InstagramFormProps) {
 
   const t = useTranslations("components.instagramForm");
 
-  // Destructure props for useEffect dependency
   const { pastedUrl, onUrlConsumed, className } = props;
 
   const {
@@ -165,6 +164,8 @@ export function InstagramForm(props: InstagramFormProps) {
 
     if (cachedUrl?.videoUrl) {
       triggerDownload(cachedUrl.videoUrl);
+      // ⭐ Clear URL after cached download
+      clearUrlField();
       return;
     }
 
@@ -176,6 +177,10 @@ export function InstagramForm(props: InstagramFormProps) {
         if (downloadUrl) {
           triggerDownload(downloadUrl);
           setCachedUrl(shortcode, downloadUrl);
+          
+          // ⭐ Clear URL after successful download
+          clearUrlField();
+          
           toast.success(t("toasts.success"), {
             id: "toast-success",
             position: "top-center",
@@ -280,7 +285,7 @@ export function InstagramForm(props: InstagramFormProps) {
                       )}
                     />
                     
-                    {/* Modern Clear Button */}
+                    {/* Clear Button */}
                     {isShowClearButton && (
                       <button
                         type="button"
@@ -303,7 +308,6 @@ export function InstagramForm(props: InstagramFormProps) {
             type="submit"
             className="group relative h-12 overflow-hidden rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 px-5 text-sm font-medium text-white shadow-lg shadow-teal-200/50 transition-all duration-300 hover:from-teal-700 hover:to-emerald-700 hover:shadow-xl hover:shadow-teal-200/60 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-teal-900/50 dark:hover:shadow-teal-900/60"
           >
-            {/* Button shine effect */}
             <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
             
             <span className="relative flex items-center gap-2">

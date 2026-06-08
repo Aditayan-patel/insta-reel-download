@@ -53,8 +53,8 @@ export function InstagramBulkDownloader() {
         setProgress(((i + 1) / validUrls.length) * 100);
         await new Promise(resolve => setTimeout(resolve, 800));
       } catch {
-  console.error(`Failed to download URL ${i + 1}`);
-}
+        console.error(`Failed to download URL ${i + 1}`);
+      }
     }
     setDownloading(false);
     toast.success(`Downloaded ${completedCount} files!`);
@@ -63,7 +63,7 @@ export function InstagramBulkDownloader() {
   const validUrlCount = urls.filter(u => u.trim()).length;
 
   return (
-    <div className="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white/90 p-4 backdrop-blur-xl transition-all duration-300 hover:border-slate-300 hover:shadow-lg dark:border-slate-800/80 dark:bg-slate-900/90 dark:hover:border-slate-700">
+    <div className="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-teal-500/30 p-4 backdrop-blur-xl transition-all duration-300 hover:border-slate-300 hover:shadow-lg dark:border-slate-800/80 dark:bg-black/80 dark:hover:border-slate-700">
       <div className="absolute inset-0 bg-gradient-to-br from-teal-50/50 via-transparent to-emerald-50/50 opacity-0 transition-opacity duration-300 group-hover:opacity-100 dark:from-teal-950/30 dark:to-emerald-950/30" />
       
       <div className="relative space-y-4">
@@ -88,12 +88,12 @@ export function InstagramBulkDownloader() {
           {urls.map((url, index) => (
             <div key={index} className="flex gap-1.5">
               <div className="relative flex-1">
-                <Link2 className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <Link2 className="absolute left-2 top-1/2 z-10 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
                 <Input
                   placeholder={`URL ${index + 1}`}
                   value={url}
                   onChange={(e) => updateUrl(index, e.target.value)}
-                  className="h-8 rounded-lg border-slate-200/80 bg-white/80 pl-7 pr-3 text-[11px] dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-300"
+                  className="h-8 rounded-lg border-slate-200/80 bg-white/80 pl-7 pr-3 text-[11px] text-slate-900 placeholder:text-slate-400 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-300 dark:placeholder:text-slate-500"
                 />
               </div>
               {urls.length > 1 && (

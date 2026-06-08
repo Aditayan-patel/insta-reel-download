@@ -47,7 +47,7 @@ export function InstagramProfileDownloader() {
   };
 
   return (
-    <div className="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-white/90 p-4 backdrop-blur-xl transition-all duration-300 hover:border-slate-300 hover:shadow-lg dark:border-slate-800/80 dark:bg-slate-900/90 dark:hover:border-slate-700">
+    <div className="group relative overflow-hidden rounded-xl border border-slate-200/80 bg-teal-500/30 p-4 backdrop-blur-xl transition-all duration-300 hover:border-slate-300 hover:shadow-lg dark:border-slate-800/80 dark:bg-black/80 dark:hover:border-slate-700">
       <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 via-transparent to-purple-50/50 opacity-0 transition-opacity duration-300 group-hover:opacity-100 dark:from-blue-950/30 dark:to-purple-950/30" />
       
       <div className="relative space-y-4">
@@ -65,14 +65,13 @@ export function InstagramProfileDownloader() {
         {/* Search Input */}
         <div className="flex gap-2">
           <div className="relative flex-1">
-            {/* ⭐ Fixed User Icon - proper dark/light colors */}
-            <User className="absolute z-50 left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-green-400 transition-colors group-hover:text-blue-500 dark:text-slate-500 dark:group-hover:text-blue-400" />
+            <User className="absolute left-2.5 top-1/2 z-10 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
             <Input
               placeholder="Enter username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="h-9 rounded-lg border-slate-200/80 bg-white/80 pl-8 pr-3 text-xs text-slate-700 placeholder:text-slate-400 backdrop-blur-sm transition-all focus:border-blue-400 focus:ring-2 focus:ring-blue-100 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-300 dark:placeholder:text-slate-500 dark:focus:border-blue-600 dark:focus:ring-blue-900/50"
+              className="h-9 rounded-lg border-slate-200/80 bg-white/80 pl-8 pr-3 text-xs text-slate-900 placeholder:text-slate-400 backdrop-blur-sm focus:border-blue-400 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-300 dark:placeholder:text-slate-500"
             />
           </div>
           <Button 
