@@ -29,7 +29,7 @@ export function Hero() {
   return (
     <section
       id={homeSections.hero}
-      className="relative w-full scroll-mt-16 overflow-hidden bg-gradient-to-b from-slate-50 via-white to-slate-50 py-12 md:py-24 lg:py-32 xl:py-40 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950"
+      className="relative w-full scroll-mt-6 overflow-hidden bg-gradient-to-b from-slate-50 via-white to-slate-50 py-7 pb-0 md:py-17 lg:py-25 xl:py-16 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950"
     >
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]" />
@@ -58,6 +58,52 @@ export function Hero() {
             </span>
             Free & Unlimited Downloads
             <Sparkles className="h-4 w-4 animate-pulse" />
+          </div>
+
+          {/* Marquee Tag - Individual Capsules */}
+          <div className="w-full max-w-3xl overflow-hidden marquee-container">
+            <div className="marquee-content whitespace-nowrap">
+              <div className="inline-flex items-center gap-3">
+                <span className="inline-flex items-center gap-2 rounded-full bg-teal-500/30 px-4 py-1.5 text-sm font-medium text-teal-700 backdrop-blur-sm dark:text-teal-300">
+                  📱 Reels
+                </span>
+                <span className="inline-flex items-center gap-2 rounded-full bg-teal-500/30 px-4 py-1.5 text-sm font-medium text-teal-700 backdrop-blur-sm dark:text-teal-300">
+                  📷 Posts
+                </span>
+                <span className="inline-flex items-center gap-2 rounded-full bg-teal-500/30 px-4 py-1.5 text-sm font-medium text-teal-700 backdrop-blur-sm dark:text-teal-300">
+                  📸 Stories
+                </span>
+                <span className="inline-flex items-center gap-2 rounded-full bg-teal-500/30 px-4 py-1.5 text-sm font-medium text-teal-700 backdrop-blur-sm dark:text-teal-300">
+                  👤 Profiles
+                </span>
+                <span className="inline-flex items-center gap-2 rounded-full bg-teal-500/30 px-4 py-1.5 text-sm font-medium text-teal-700 backdrop-blur-sm dark:text-teal-300">
+                  🎥 IGTV
+                </span>
+                <span className="inline-flex items-center gap-2 rounded-full bg-teal-500/30 px-4 py-1.5 text-sm font-medium text-teal-700 backdrop-blur-sm dark:text-teal-300">
+                  🔄 Carousels
+                </span>
+              </div>
+              <div className="inline-flex items-center gap-3 ml-3">
+                <span className="inline-flex items-center gap-2 rounded-full bg-teal-500/30 px-4 py-1.5 text-sm font-medium text-teal-700 backdrop-blur-sm dark:text-teal-300">
+                  📱 Reels
+                </span>
+                <span className="inline-flex items-center gap-2 rounded-full bg-teal-500/30 px-4 py-1.5 text-sm font-medium text-teal-700 backdrop-blur-sm dark:text-teal-300">
+                  📷 Posts
+                </span>
+                <span className="inline-flex items-center gap-2 rounded-full bg-teal-500/30 px-4 py-1.5 text-sm font-medium text-teal-700 backdrop-blur-sm dark:text-teal-300">
+                  📸 Stories
+                </span>
+                <span className="inline-flex items-center gap-2 rounded-full bg-teal-500/30 px-4 py-1.5 text-sm font-medium text-teal-700 backdrop-blur-sm dark:text-teal-300">
+                  👤 Profiles
+                </span>
+                <span className="inline-flex items-center gap-2 rounded-full bg-teal-500/30 px-4 py-1.5 text-sm font-medium text-teal-700 backdrop-blur-sm dark:text-teal-300">
+                  🎥 IGTV
+                </span>
+                <span className="inline-flex items-center gap-2 rounded-full bg-teal-500/30 px-4 py-1.5 text-sm font-medium text-teal-700 backdrop-blur-sm dark:text-teal-300">
+                  🔄 Carousels
+                </span>
+              </div>
+            </div>
           </div>
 
           {/* Main Heading */}
@@ -129,13 +175,13 @@ export function Hero() {
           </div>
 
           {/* Trust Indicators */}
-          <div className="flex flex-wrap items-center justify-center gap-10 md:gap-18">
+          <div className="flex flex-wrap items-center justify-center gap-7 md:gap-18">
             {[
               { icon: Shield, text: "100% Secure" },
               { icon: Zap, text: "Lightning Fast" },
               { icon: Download, text: "HD Quality" },
             ].map((item, index) => (
-              <div key={index} className="flex items-center gap-2.5 text-sm font-medium text-slate-600 dark:text-slate-400">
+              <div key={index} className="flex items-center z-50 gap-2.5 text-sm font-medium text-slate-600 dark:text-slate-400">
                 <div className="rounded-lg bg-teal-100 p-1.5 dark:bg-teal-900/50">
                   <item.icon className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
                 </div>
@@ -148,6 +194,24 @@ export function Hero() {
 
       {/* Bottom Gradient Fade */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-slate-50 to-transparent dark:from-gray-950" />
+
+      <style jsx>{`
+        @keyframes marquee {
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-50%);
+          }
+        }
+        .marquee-content {
+          animation: marquee 12s linear infinite;
+          display: inline-block;
+        }
+        .marquee-container:hover .marquee-content {
+          animation-play-state: paused;
+        }
+      `}</style>
     </section>
   );
 }

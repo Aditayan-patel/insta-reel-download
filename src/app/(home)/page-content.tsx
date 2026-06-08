@@ -36,7 +36,7 @@ export default function HomePage() {
               <span className="mr-2 inline-block h-2 w-2 animate-pulse rounded-full bg-teal-500" />
               More Free Tools
             </div>
-            <h2 className="mt-4 text-4xl font-bold tracking-tight text-slate-900 md:text-5xl lg:text-6xl dark:text-white">
+            <h2 className="mt-0 text-4xl font-bold tracking-tight text-slate-900 md:text-5xl lg:text-6xl dark:text-white">
               Additional Downloaders
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-lg leading-relaxed text-slate-600 md:text-xl dark:text-slate-400">
