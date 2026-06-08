@@ -61,7 +61,7 @@ export function Hero() {
           </div>
 
           {/* Marquee Tag - Individual Capsules */}
-          <div className="w-full max-w-3xl overflow-hidden marquee-container">
+          <div className="w-full max-w-3xl mt-5 mb-9 overflow-hidden marquee-container">
             <div className="marquee-content whitespace-nowrap">
               <div className="inline-flex items-center gap-3">
                 <span className="inline-flex items-center gap-2 rounded-full bg-teal-500/30 px-4 py-1.5 text-sm font-medium text-teal-700 backdrop-blur-sm dark:text-teal-300">
@@ -149,7 +149,7 @@ export function Hero() {
                 <ClipboardPaste className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
                 <span>Paste Instagram Link</span>
                 <span className="ml-1 rounded-md bg-teal-100 px-1.5 py-0.5 text-xs text-teal-600 dark:bg-teal-900/50 dark:text-teal-400">
-                  Ctrl+V
+                  Click Me
                 </span>
                 <div className="absolute inset-0 -translate-x-full rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
               </button>
@@ -205,7 +205,7 @@ export function Hero() {
           }
         }
         .marquee-content {
-          animation: marquee 12s linear infinite;
+          animation: marquee 17s linear infinite;
           display: inline-block;
         }
         .marquee-container:hover .marquee-content {
