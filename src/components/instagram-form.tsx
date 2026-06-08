@@ -50,36 +50,24 @@ const useFormSchema = () => {
 };
 
 function triggerDownload(videoUrl: string) {
-  // Ensure we are in a browser environment
   if (typeof window === "undefined") return;
 
   const randomTime = new Date().getTime().toString().slice(-8);
   const filename = `gram-grabberz-${randomTime}.mp4`;
 
-  // Construct the URL to your proxy API route
-  const proxyUrl = new URL("/api/download-proxy", window.location.origin); // Use relative path + origin
+  const proxyUrl = new URL("/api/download-proxy", window.location.origin);
   proxyUrl.searchParams.append("url", videoUrl);
   proxyUrl.searchParams.append("filename", filename);
 
-  console.log("Using proxy URL:", proxyUrl.toString()); // For debugging
+  console.log("Using proxy URL:", proxyUrl.toString());
 
   const link = document.createElement("a");
-  // Set href to your proxy route
   link.href = proxyUrl.toString();
   link.target = "_blank";
-
-  // The 'download' attribute here is less critical because the proxy
-  // sets the Content-Disposition header, but it can still be helpful
-  // as a fallback or hint for the browser. Keep the desired filename.
   link.setAttribute("download", filename);
 
-  // Append link to the body temporarily
   document.body.appendChild(link);
-
-  // Programmatically click the link to trigger the download
   link.click();
-
-  // Clean up and remove the link
   document.body.removeChild(link);
 }
 
@@ -91,9 +79,16 @@ type CachedUrl = {
   };
 };
 
-export function InstagramForm(props: { className?: string }) {
+interface InstagramFormProps {
+  className?: string;
+  pastedUrl?: string;
+  onUrlConsumed?: () => void;
+}
+
+export function InstagramForm(props: InstagramFormProps) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const cachedUrls = React.useRef(new Map<string, CachedUrl>());
+  const previousPastedUrl = React.useRef<string>("");
 
   const t = useTranslations("components.instagramForm");
 
@@ -113,7 +108,6 @@ export function InstagramForm(props: { className?: string }) {
   });
 
   const errorMessage = form.formState.errors.url?.message;
-
   const isDisabled = isPending || !form.formState.isDirty;
   const isShowClearButton = form.watch("url").length > 0;
 
@@ -218,21 +212,60 @@ export function InstagramForm(props: { className?: string }) {
     }
   }
 
+  // ⭐ FIXED: Jab Hero se pastedUrl aaye to input mein set karo with shouldDirty
+  React.useEffect(() => {
+    if (props.pastedUrl && props.pastedUrl !== previousPastedUrl.current) {
+      previousPastedUrl.current = props.pastedUrl;
+      
+      // ⭐ IMPORTANT: shouldDirty true karo taaki Download button enable ho
+      form.setValue("url", props.pastedUrl, { 
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+      form.clearErrors("url");
+      
+      // URL consume ho gaya, Hero ko bata do
+      props.onUrlConsumed?.();
+      
+      // Thoda delay se focus karo
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }
+  }, [props.pastedUrl]);
+
   React.useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
+  // ⭐ DEBUG LOG - production mein hata dena
+  React.useEffect(() => {
+    console.log("Form State:", {
+      isDirty: form.formState.isDirty,
+      url: form.watch("url"),
+      isDisabled,
+      pastedUrl: props.pastedUrl,
+    });
+  }, [form.formState.isDirty, form.watch("url"), isDisabled, props.pastedUrl]);
+
   return (
     <div className={cn("w-full space-y-2", props.className)}>
+      {/* Error Message */}
       {errorMessage ? (
-        <p className="h-4 text-sm text-red-500 sm:text-start">{errorMessage}</p>
+        <div className="flex items-center gap-2 rounded-lg border border-red-200/80 bg-red-50/80 px-3 py-2 text-sm text-red-600 backdrop-blur-sm dark:border-red-800/80 dark:bg-red-950/50 dark:text-red-400">
+          <div className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/50">
+            <X className="h-3 w-3 text-red-500" />
+          </div>
+          <span>{errorMessage}</span>
+        </div>
       ) : (
-        <div className="h-4"></div>
+        <div className="h-2"></div>
       )}
+
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex w-full flex-col gap-2 sm:flex-row sm:items-end"
+          className="flex w-full items-end gap-2"
         >
           <FormField
             control={form.control}
@@ -252,37 +285,54 @@ export function InstagramForm(props: { className?: string }) {
                       minLength={1}
                       maxLength={255}
                       placeholder={t("inputs.url.placeholder")}
+                      className={cn(
+                        "h-12 rounded-xl border-slate-200/80 bg-white/80 pr-12 text-sm backdrop-blur-sm transition-all duration-200 placeholder:text-slate-400 hover:border-slate-300 focus:border-teal-400 focus:ring-2 focus:ring-teal-100 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-300 dark:placeholder:text-slate-500 dark:hover:border-slate-600 dark:focus:border-teal-600 dark:focus:ring-teal-900/50",
+                        errorMessage && "border-red-300 focus:border-red-400 focus:ring-red-100 dark:border-red-800 dark:focus:border-red-700 dark:focus:ring-red-900/50"
+                      )}
                     />
+                    
+                    {/* Modern Clear Button */}
                     {isShowClearButton && (
-                      <Button
-                        size="icon"
-                        variant="ghost"
+                      <button
+                        type="button"
                         onClick={clearUrlField}
-                        className="absolute top-1/2 right-2 h-4 w-4 -translate-y-1/2 cursor-pointer"
+                        className="group absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-slate-400 transition-all duration-200 hover:bg-red-50 hover:text-red-500 dark:text-slate-500 dark:hover:bg-red-950/50 dark:hover:text-red-400"
+                        aria-label="Clear input"
                       >
-                        <X className="text-red-500" />
-                      </Button>
+                        <X className="h-4 w-4 transition-transform duration-200 group-hover:rotate-90" />
+                      </button>
                     )}
                   </div>
                 </FormControl>
               </FormItem>
             )}
           />
+
+          {/* Download Button */}
           <Button
             disabled={isDisabled}
             type="submit"
-            className="bg-teal-500 text-white hover:bg-teal-600 dark:bg-teal-700 dark:hover:bg-teal-600"
+            className="group relative h-12 overflow-hidden rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 px-5 text-sm font-medium text-white shadow-lg shadow-teal-200/50 transition-all duration-300 hover:from-teal-700 hover:to-emerald-700 hover:shadow-xl hover:shadow-teal-200/60 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-teal-900/50 dark:hover:shadow-teal-900/60"
           >
-            {isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Download className="h-4 w-4" />
-            )}
-            {t("submit")}
+            {/* Button shine effect */}
+            <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
+            
+            <span className="relative flex items-center gap-2">
+              {isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="h-4 w-4 transition-transform duration-200 group-hover:translate-y-0.5" />
+              )}
+              <span className="hidden sm:inline">{t("submit")}</span>
+            </span>
           </Button>
         </form>
       </Form>
-      <p className="text-muted-foreground text-center text-xs">{t("hint")}</p>
+
+      {/* Hint Text */}
+      <p className="text-center text-xs text-slate-400 dark:text-slate-500">
+        {t("hint")}
+      </p>
     </div>
   );
 }

@@ -23,6 +23,35 @@
       },
       "hint": "Works with Instagram posts and reels",
       "submit": "Download"
+    },
+    "storyDownloader": {
+      "title": "Story Downloader",
+      "placeholder": "Enter username without @",
+      "fetchButton": "Fetch Stories",
+      "noStories": "No stories found",
+      "error": "Failed to fetch stories"
+    },
+    "profileDownloader": {
+      "title": "Profile Picture Downloader",
+      "placeholder": "Enter username",
+      "searchButton": "Search",
+      "downloadButton": "Download HD Picture",
+      "followers": "Followers",
+      "following": "Following",
+      "posts": "Posts"
+    },
+    "bulkDownloader": {
+      "title": "Bulk Downloader",
+      "addUrl": "Add URL",
+      "downloadAll": "Download All",
+      "progress": "Downloading...",
+      "placeholder": "Instagram URL"
+    },
+    "thumbnailDownloader": {
+      "title": "Thumbnail Downloader",
+      "placeholder": "Paste video URL",
+      "getThumbnails": "Get Thumbnails",
+      "download": "Download Thumbnail"
     }
   },
   "layouts": {
@@ -31,13 +60,14 @@
         "themeLabel": "Theme",
         "localeLabel": "Language",
         "links": {
+          "tools": "Tools",
           "features": "Features",
           "howItWorks": "How It Works",
           "frequentlyAsked": "FAQ"
         }
       },
       "footer": {
-        "copyright": "© {year} Application. All rights reserved.",
+        "copyright": "© {year} Gram Grabberz. All rights reserved.",
         "links": {
           "terms": "Terms of Service",
           "privacy": "Privacy Policy",
@@ -150,6 +180,11 @@
               "content": "Yes, our downloader works on all devices including smartphones and tablets. The process is the same - copy the URL from Instagram and paste it into our tool."
             }
           }
+        },
+        "stillHaveQuestions": {
+          "title": "Still have questions?",
+          "description": "Can't find the answer you're looking for? Feel free to contact our support team.",
+          "cta": "Contact Support"
         }
       }
     }

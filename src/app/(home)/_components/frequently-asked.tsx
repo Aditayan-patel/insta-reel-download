@@ -1,6 +1,7 @@
 import React from "react";
 
 import { useTranslations } from "next-intl";
+import { HelpCircle, Shield, MessageCircleQuestion } from "lucide-react";
 
 import {
   Accordion,
@@ -11,130 +12,132 @@ import {
 
 import { homeSections } from "@/lib/constants";
 
+const sections = [
+  {
+    key: "general",
+    icon: HelpCircle,
+    gradient: "from-emerald-500 to-teal-600",
+    iconBg: "bg-emerald-100",
+    iconColor: "text-emerald-600",
+    hoverColor: "hover:text-emerald-600 dark:hover:text-emerald-400",
+    questions: ["q1", "q2", "q3"],
+  },
+  {
+    key: "technical",
+    icon: Shield,
+    gradient: "from-blue-500 to-indigo-600",
+    iconBg: "bg-blue-100",
+    iconColor: "text-blue-600",
+    hoverColor: "hover:text-blue-600 dark:hover:text-blue-400",
+    questions: ["q1", "q2", "q3"],
+  },
+];
+
 export function FrequentlyAsked() {
   const t = useTranslations("pages.home.frequentlyAsked");
 
   return (
     <section
       id={homeSections.frequentlyAsked}
-      className="w-full scroll-mt-12 bg-gradient-to-b from-white to-gray-50 py-12 md:py-24 dark:from-gray-900 dark:to-gray-800"
+      className="relative w-full scroll-mt-12 overflow-hidden bg-gradient-to-b from-slate-50 via-white to-slate-50 py-20 md:py-28 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950"
     >
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="flex flex-col items-center justify-center space-y-8 text-center">
-          <div className="space-y-2">
-            <div className="mb-2 inline-block rounded-lg bg-teal-100 px-3 py-1 text-sm text-teal-700 dark:bg-teal-800 dark:text-teal-50">
-              {t("badge")}
-            </div>
-            <h2 className="text-3xl font-bold tracking-tighter md:text-4xl">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]" />
+
+      {/* Gradient Orbs */}
+      <div className="absolute top-0 right-1/4 h-96 w-96 rounded-full bg-gradient-to-r from-teal-200/20 to-emerald-200/20 blur-3xl dark:from-teal-500/10 dark:to-emerald-500/10" />
+      <div className="absolute bottom-0 left-1/4 h-96 w-96 rounded-full bg-gradient-to-r from-blue-200/20 to-purple-200/20 blur-3xl dark:from-blue-500/10 dark:to-purple-500/10" />
+
+      <div className="relative container mx-auto px-4 md:px-6">
+        <div className="flex flex-col items-center justify-center space-y-4 text-center">
+          {/* Badge */}
+          <div className="inline-flex items-center rounded-full border border-teal-200/60 bg-teal-50/80 px-4 py-1.5 text-sm font-medium text-teal-700 backdrop-blur-sm dark:border-teal-800/60 dark:bg-teal-950/50 dark:text-teal-300">
+            <span className="mr-2 inline-block h-2 w-2 animate-pulse rounded-full bg-teal-500" />
+            {t("badge")}
+          </div>
+
+          {/* Title & Description */}
+          <div className="max-w-2xl space-y-4">
+            <h2 className="text-4xl font-bold tracking-tight text-slate-900 md:text-5xl lg:text-6xl dark:text-white">
               {t("title")}
             </h2>
-            <p className="text-muted-foreground mx-auto max-w-[700px] md:text-xl">
+            <p className="text-lg leading-relaxed text-slate-600 md:text-xl dark:text-slate-400">
               {t("description")}
             </p>
           </div>
 
-          <div className="mx-auto grid w-full max-w-3xl grid-cols-1 gap-6">
-            {/* General */}
-            <div className="rounded-xl border border-gray-50 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-              <h3 className="mb-4 flex items-center text-xl font-bold">
-                <div className="mr-3 rounded-full bg-teal-100 p-2">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="text-teal-600"
+          {/* FAQ Sections */}
+          <div className="mx-auto grid w-full max-w-3xl grid-cols-1 gap-6 lg:gap-8">
+            {sections.map((section) => {
+              const Icon = section.icon;
+              return (
+                <div
+                  key={section.key}
+                  className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white/80 p-6 backdrop-blur-sm transition-all duration-300 hover:border-slate-300 hover:shadow-xl hover:shadow-slate-200/50 sm:p-8 dark:border-slate-800/80 dark:bg-slate-900/80 dark:hover:border-slate-700 dark:hover:shadow-slate-900/50"
+                >
+                  {/* Card Gradient Border Effect */}
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-transparent via-transparent to-slate-900/[0.02] opacity-0 transition-opacity duration-300 group-hover:opacity-100 dark:to-white/[0.02]" />
+
+                  {/* Section Header */}
+                  <div className="relative mb-6 flex items-center gap-4">
+                    <div
+                      className={`rounded-xl ${section.iconBg} p-2.5 ring-1 ring-slate-200/60 transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg dark:ring-slate-700/60`}
+                    >
+                      <div
+                        className={`absolute inset-0 rounded-xl bg-gradient-to-br ${section.gradient} opacity-0 transition-opacity duration-300 group-hover:opacity-10`}
+                      />
+                      <Icon
+                        className={`relative h-5 w-5 ${section.iconColor}`}
+                      />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                        {t(`sections.${section.key}.title`)}
+                      </h3>
+                      <div
+                        className={`h-0.5 w-0 rounded-full bg-gradient-to-r ${section.gradient} transition-all duration-300 group-hover:w-3/4`}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Accordion */}
+                  <Accordion
+                    type="single"
+                    collapsible
+                    className="relative w-full space-y-1"
                   >
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-                    <path d="M12 17h.01"></path>
-                  </svg>
+                    {section.questions.map((question, index) => (
+                      <AccordionItem
+                        key={`${section.key}-${question}`}
+                        value={`${section.key}-${question}`}
+                        className="rounded-lg border border-transparent px-3 transition-all duration-200 hover:border-slate-200/80 hover:bg-slate-50/80 dark:hover:border-slate-700/80 dark:hover:bg-slate-800/50"
+                      >
+                        <AccordionTrigger
+                          className={`py-4 text-left font-medium text-slate-700 transition-colors duration-200 ${section.hoverColor} hover:no-underline dark:text-slate-300`}
+                        >
+                          <span className="flex items-center gap-2">
+                            <span
+                              className={`text-xs font-bold ${section.iconColor} opacity-50`}
+                            >
+                              {String(index + 1).padStart(2, "0")}
+                            </span>
+                            {t(`sections.${section.key}.${question}.trigger`)}
+                          </span>
+                        </AccordionTrigger>
+                        <AccordionContent className="pb-4 pl-9 text-start text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                          {t(`sections.${section.key}.${question}.content`)}
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+
+                  {/* Bottom Accent Line */}
+                  <div
+                    className={`absolute bottom-0 left-1/2 h-1 w-0 -translate-x-1/2 rounded-full bg-gradient-to-r ${section.gradient} transition-all duration-300 group-hover:w-3/4`}
+                  />
                 </div>
-                {t("sections.general.title")}
-              </h3>
-
-              <Accordion type="single" collapsible className="w-full">
-                <AccordionItem value="item-1" className="border-b">
-                  <AccordionTrigger className="py-4 text-left font-medium hover:text-teal-500 hover:no-underline">
-                    {t("sections.general.q1.trigger")}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground pb-4 text-start">
-                    {t("sections.general.q1.content")}
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-2" className="border-b">
-                  <AccordionTrigger className="py-4 text-left font-medium hover:text-teal-500 hover:no-underline">
-                    {t("sections.general.q2.trigger")}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground pb-4 text-start">
-                    {t("sections.general.q2.content")}
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-3" className="border-b">
-                  <AccordionTrigger className="py-4 text-left font-medium hover:text-teal-500 hover:no-underline">
-                    {t("sections.general.q3.trigger")}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground pb-4 text-start">
-                    {t("sections.general.q3.content")}
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </div>
-
-            {/* Technical */}
-            <div className="rounded-xl border border-gray-50 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-              <h3 className="mb-4 flex items-center text-xl font-bold">
-                <div className="mr-3 rounded-full bg-teal-100 p-2">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="text-teal-600"
-                  >
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"></path>
-                  </svg>
-                </div>
-                {t("sections.technical.title")}
-              </h3>
-
-              <Accordion type="single" collapsible className="w-full">
-                <AccordionItem value="item-4" className="border-b">
-                  <AccordionTrigger className="py-4 text-left font-medium hover:text-teal-500 hover:no-underline">
-                    {t("sections.technical.q1.trigger")}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground pb-4 text-start">
-                    {t("sections.technical.q1.content")}
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-5" className="border-b">
-                  <AccordionTrigger className="py-4 text-left font-medium hover:text-teal-500 hover:no-underline">
-                    {t("sections.technical.q2.trigger")}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground pb-4 text-start">
-                    {t("sections.technical.q2.content")}
-                  </AccordionContent>
-                </AccordionItem>
-                <AccordionItem value="item-6" className="border-b">
-                  <AccordionTrigger className="py-4 text-left font-medium hover:text-teal-500 hover:no-underline">
-                    {t("sections.technical.q2.trigger")}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground pb-4 text-start">
-                    {t("sections.technical.q2.content")}
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
-            </div>
+              );
+            })}
           </div>
         </div>
       </div>
