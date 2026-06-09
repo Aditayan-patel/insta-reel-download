@@ -1,0 +1,21 @@
+{
+  "name": "Reels Dl",
+  "short_name": "Reelsdl",
+  "description": "Download Instagram videos, reels, and stories for free",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#14b8a6",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
