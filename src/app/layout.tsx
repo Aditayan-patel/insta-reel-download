@@ -1,3 +1,4 @@
+// src/app/layout.tsx
 import type { Metadata, Viewport } from "next";
 import { DM_Sans as RootFont } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -12,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { siteMetadata } from "@/lib/site";
 import { getLocale, getMessages } from "next-intl/server";
 
+// ✅ Critical CSS ko inline karo
 import "./globals.css";
 
 const geistSans = RootFont({
@@ -93,9 +95,28 @@ export default async function RootLayout({
   return (
     <html lang={locale} className="scroll-smooth" suppressHydrationWarning>
       <head>
+        {/* ✅ Critical preconnect only */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="preload" href="/favicon.ico" as="image" type="image/x-icon" />
+        
+        {/* ✅ Preload critical CSS */}
+        <link 
+          rel="preload" 
+          href="/favicon.ico" 
+          as="image" 
+          type="image/x-icon"
+        />
+        
+        {/* ✅ Inline critical CSS for above-fold content */}
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            /* Critical CSS */
+            body { margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+            .scroll-smooth { scroll-behavior: smooth; }
+            .antialiased { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+          `
+        }} />
+        
         <meta name="theme-color" content="#14b8a6" media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
