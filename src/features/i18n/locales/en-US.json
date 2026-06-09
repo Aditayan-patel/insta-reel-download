@@ -18,8 +18,10 @@
         "serverError": "Server is unavailable, please try again later"
       },
       "toasts": {
-        "success": "Video download is starting...",
-        "error": "Something went wrong, please try again."
+        "success": " Video Fetch successful...",
+        "error": "✗ Something went wrong, please try again.",
+        "downloading": "⬇️ Reel is downloading...",
+        "noVideo": "✗ No reels/videos found in this post"
       },
       "hint": "Works with Instagram posts and reels",
       "submit": "Download"
@@ -28,8 +30,8 @@
       "title": "Story Downloader",
       "placeholder": "Enter username without @",
       "fetchButton": "Fetch Stories",
-      "noStories": "No stories found",
-      "error": "Failed to fetch stories"
+      "noStories": "📭 No stories found",
+      "error": "✗ Failed to fetch stories"
     },
     "profileDownloader": {
       "title": "Profile Picture Downloader",

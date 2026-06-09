@@ -1,15 +1,15 @@
 import { Metadata } from "next";
 
 export const siteConfig = {
-  name: "GramGrabberz",
-  domain: "gram-grabberz.vercel.com",
-  shortName: "GramGrabberz",
+  name: "Reelsdl",
+  domain: "Reelsdl.vercel.com",
+  shortName: "Reelsdl",
   creator: "riad-azz",
   description:
     "Fast, free, and no login required. Just paste the URL and download.",
   ogDescription:
     "Fast, free, and no login required. Just paste the URL and download.",
-  url: "https://gram-grabberz.vercel.com",
+  url: "https://Reelsdl.vercel.com",
 };
 
 export const siteMetadata: Metadata = {

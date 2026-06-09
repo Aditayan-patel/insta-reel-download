@@ -1,7 +1,16 @@
 "use client";
 
 import React from "react";
-import { Plus, Download, Loader2, Trash2, Zap, Link2, CheckCircle2, ClipboardPaste } from "lucide-react";
+import {
+  Plus,
+  Download,
+  Loader2,
+  Trash2,
+  Zap,
+  Link2,
+  CheckCircle2,
+  ClipboardPaste,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -14,7 +23,7 @@ export function InstagramBulkDownloader() {
   const [pasted, setPasted] = React.useState(false);
 
   const addUrlField = () => setUrls([...urls, ""]);
-  
+
   const removeUrlField = (index: number) => {
     const newUrls = urls.filter((_, i) => i !== index);
     setUrls(newUrls.length ? newUrls : [""]);
@@ -27,85 +36,174 @@ export function InstagramBulkDownloader() {
   };
 
   const extractShortcode = (url: string): string | null => {
-    const match = url.match(/\/(?:p|reel|tv|reels)\/([A-Za-z0-9_-]+)/);
+    const trimmed = url.trim();
+    const match = trimmed.match(/\/(?:p|reel|tv|reels)\/([A-Za-z0-9_-]+)/);
     return match ? match[1] : null;
   };
 
-  const handlePasteAll = async () => {
+  const handlePaste = async () => {
     try {
       const text = await navigator.clipboard.readText();
-      const lines = text.split(/\r?\n/).filter(line => line.trim() && line.includes("instagram.com"));
-      
-      if (lines.length > 0) {
-        setUrls(lines);
+
+      // Handle multiple lines or space-separated URLs
+      const extracted = text
+        .split(/[\r\n\s]+/)
+        .map((l) => l.trim())
+        .filter((line) => line && line.includes("instagram.com"));
+
+      if (extracted.length > 1) {
+        // Create separate input field for each URL
+        setUrls(extracted);
         setPasted(true);
         setTimeout(() => setPasted(false), 1800);
-        toast.success(`Pasted ${lines.length} URLs!`);
-      } else if (text && text.includes("instagram.com")) {
-        setUrls([text]);
+        toast.success(`${extracted.length} URLs pasted successfully!`);
+      } else if (extracted.length === 1) {
+        // Single URL — fill in existing empty field, otherwise add
+        setUrls((prev) => {
+          const emptyIndex = prev.findIndex((u) => !u.trim());
+          if (emptyIndex !== -1) {
+            const updated = [...prev];
+            updated[emptyIndex] = extracted[0];
+            return updated;
+          }
+          return [...prev, extracted[0]];
+        });
         setPasted(true);
         setTimeout(() => setPasted(false), 1800);
         toast.success("URL pasted!");
       } else {
-        toast.error("No valid Instagram URLs in clipboard");
+        toast.error("No valid Instagram URL found in clipboard");
       }
     } catch {
-      toast.error("Clipboard access denied");
+      toast.error("Could not access clipboard");
     }
   };
 
+  /**
+   * Proper programmatic download — `window.open` might be blocked by popup blocker,
+   * so use `<a>` tag + `click()`.
+   */
+  const triggerDownload = (proxyUrl: string, filename: string) => {
+    const a = document.createElement("a");
+    a.href = proxyUrl;
+    a.download = filename;
+    a.style.display = "none";
+    document.body.appendChild(a);
+    a.click();
+    // Wait a bit so browser can start the download
+    setTimeout(() => document.body.removeChild(a), 1000);
+  };
+
   const handleBulkDownload = async () => {
-    const validUrls = urls.filter(url => url.trim());
-    if (!validUrls.length) { 
-      toast.error("Please add at least one URL"); 
-      return; 
+    const validUrls = urls.filter((url) => url.trim());
+    if (!validUrls.length) {
+      toast.error("Please add at least one URL");
+      return;
     }
 
     setDownloading(true);
     setProgress(0);
     setCompletedCount(0);
     let successCount = 0;
+    let failCount = 0;
 
     for (let i = 0; i < validUrls.length; i++) {
       try {
         const shortcode = extractShortcode(validUrls[i]);
-        if (!shortcode) continue;
-        
-        const response = await fetch(`/api/instagram/post/${shortcode}`);
-        const data = await response.json();
-        
-        if (data.mediaUrls && data.mediaUrls.length > 0) {
-          for (let j = 0; j < data.mediaUrls.length; j++) {
-            const mediaUrl = data.mediaUrls[j].url;
-            const type = data.mediaUrls[j].type;
-            const ext = type === "video" ? "mp4" : "jpg";
-            const proxyUrl = `/api/download-proxy?url=${encodeURIComponent(mediaUrl)}&filename=instagram_${shortcode}_${j + 1}.${ext}`;
-            window.open(proxyUrl, "_blank");
-            await new Promise(resolve => setTimeout(resolve, 300));
-          }
-          successCount++;
-        } else if (data.downloadUrl) {
-          const ext = data.type === "video" ? "mp4" : "jpg";
-          const proxyUrl = `/api/download-proxy?url=${encodeURIComponent(data.downloadUrl)}&filename=instagram_${shortcode}.${ext}`;
-          window.open(proxyUrl, "_blank");
-          successCount++;
+        if (!shortcode) {
+          toast.error(`URL ${i + 1} is invalid — skipping`);
+          failCount++;
+          setProgress(((i + 1) / validUrls.length) * 100);
+          continue;
         }
-        
+
+        const response = await fetch(`/api/instagram/post/${shortcode}`);
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          console.error(`Post ${shortcode} fetch failed:`, errData);
+          toast.error(
+            `Post ${i + 1} not found: ${errData?.message || response.statusText}`
+          );
+          failCount++;
+          setProgress(((i + 1) / validUrls.length) * 100);
+          continue;
+        }
+
+        const data = await response.json();
+
+        // Handle multiple media (carousel)
+        const mediaItems: { url: string; type: string }[] =
+          data.mediaUrls && data.mediaUrls.length > 0
+            ? data.mediaUrls
+            : data.downloadUrl
+            ? [{ url: data.downloadUrl, type: data.type || "image" }]
+            : [];
+
+        if (mediaItems.length === 0) {
+          toast.error(`No media found in post ${i + 1}`);
+          failCount++;
+          setProgress(((i + 1) / validUrls.length) * 100);
+          continue;
+        }
+
+        for (let j = 0; j < mediaItems.length; j++) {
+          const { url: mediaUrl, type } = mediaItems[j];
+          const ext = type === "video" ? "mp4" : "jpg";
+          const randomNum = Math.floor(100000 + Math.random() * 900000);
+          const filename = `reelsdl_${randomNum}.${ext}`;
+
+          const proxyUrl = `/api/download-proxy?url=${encodeURIComponent(
+            mediaUrl
+          )}&filename=${encodeURIComponent(filename)}`;
+
+          triggerDownload(proxyUrl, filename);
+
+          // Add small gap between multiple files
+          if (j < mediaItems.length - 1) {
+            await new Promise((resolve) => setTimeout(resolve, 600));
+          }
+        }
+
+        successCount++;
         setCompletedCount(successCount);
         setProgress(((i + 1) / validUrls.length) * 100);
-        await new Promise(resolve => setTimeout(resolve, 500));
-      } catch {
-        console.error(`Failed to download URL ${i + 1}`);
+
+        // Pause between consecutive requests
+        if (i < validUrls.length - 1) {
+          await new Promise((resolve) => setTimeout(resolve, 800));
+        }
+      } catch (err: any) {
+        console.error(`URL ${i + 1} download failed:`, err);
+        toast.error(`Error with URL ${i + 1}`);
+        failCount++;
+        setProgress(((i + 1) / validUrls.length) * 100);
       }
     }
+
     setDownloading(false);
-    if (successCount > 0) {
-      toast.success(`Downloaded ${successCount} ${successCount === 1 ? "item" : "items"}!`);
+
+    if (successCount > 0 && failCount === 0) {
+      toast.success(
+        `${successCount} ${successCount === 1 ? "post" : "posts"} downloaded successfully!`
+      );
       setUrls([""]);
+    } else if (successCount > 0 && failCount > 0) {
+      toast.success(
+        `${successCount} downloaded, ${failCount} failed`
+      );
+      // Remove only successful ones
+      const failedUrls = validUrls.filter((url) => {
+        const sc = extractShortcode(url);
+        return !sc;
+      });
+      setUrls(failedUrls.length ? failedUrls : [""]);
+    } else {
+      toast.error("Could not download anything. Please check your URLs.");
     }
   };
 
-  const validUrlCount = urls.filter(u => u.trim()).length;
+  const validUrlCount = urls.filter((u) => u.trim()).length;
 
   return (
     <div className="group relative rounded-2xl border border-neutral-200 bg-teal-500/30 dark:border-neutral-800 dark:bg-black/80 p-5 shadow-sm transition-all duration-500">
@@ -122,7 +220,7 @@ export function InstagramBulkDownloader() {
             Bulk Downloader
           </h3>
           <p className="text-[11px] text-neutral-400 dark:text-neutral-500">
-            Download multiple posts at once
+            Download multiple video/Posts at once
           </p>
         </div>
         {validUrlCount > 0 && (
@@ -175,7 +273,7 @@ export function InstagramBulkDownloader() {
         </Button>
 
         <Button
-          onClick={handlePasteAll}
+          onClick={handlePaste}
           variant="outline"
           size="sm"
           className="h-9 rounded-xl border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 text-[12px] font-medium px-3 gap-1.5 transition-all"
@@ -185,7 +283,7 @@ export function InstagramBulkDownloader() {
           ) : (
             <ClipboardPaste className="h-3.5 w-3.5" />
           )}
-          Paste All
+          Paste
         </Button>
       </div>
 
@@ -194,26 +292,26 @@ export function InstagramBulkDownloader() {
         <div className="space-y-2 mb-4">
           <div className="flex items-center justify-between text-[11px]">
             <span className="text-neutral-500 dark:text-neutral-400">
-              {completedCount}/{validUrlCount} completed
+              {completedCount}/{validUrlCount} complete
             </span>
             <span className="font-medium text-teal-600 dark:text-teal-400">
               {Math.round(progress)}%
             </span>
           </div>
           <div className="h-1.5 rounded-full bg-neutral-100 dark:bg-neutral-800 overflow-hidden">
-            <div 
-              className="h-full rounded-full bg-gradient-to-r from-teal-500 to-emerald-500 transition-all duration-500" 
-              style={{ width: `${progress}%` }} 
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-teal-500 to-emerald-500 transition-all duration-500"
+              style={{ width: `${progress}%` }}
             />
           </div>
         </div>
       )}
 
       {/* Download Button */}
-      <Button 
-        onClick={handleBulkDownload} 
-        disabled={downloading || !validUrlCount} 
-        size="sm" 
+      <Button
+        onClick={handleBulkDownload}
+        disabled={downloading || !validUrlCount}
+        size="sm"
         className="h-9 w-full rounded-xl bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-600 hover:to-emerald-600 text-white text-[12px] font-medium gap-1.5 shadow-sm transition-all disabled:opacity-60"
       >
         {downloading ? (
@@ -236,7 +334,7 @@ export function InstagramBulkDownloader() {
             <Zap className="h-5 w-5 text-neutral-300 dark:text-neutral-600" />
           </div>
           <p className="text-[12px] text-neutral-400 dark:text-neutral-600 text-center max-w-[180px]">
-            Add URLs or paste multiple links to bulk download
+            Add URLs or paste multiple links for bulk download
           </p>
         </div>
       )}

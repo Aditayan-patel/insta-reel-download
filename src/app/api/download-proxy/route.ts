@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const fileUrl = searchParams.get("url");
-  const filename = searchParams.get("filename") || "gram-grabberz-video.mp4"; // Default filename
+  const filename = searchParams.get("filename") || "instagram_media.mp4";
 
   if (!fileUrl) {
     return NextResponse.json(
@@ -13,54 +13,86 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  try {
-    // Validate the URL slightly (optional but recommended)
-    if (!fileUrl.startsWith("https://")) {
-      return NextResponse.json(
-        { error: "Invalid URL format" },
-        { status: 400 }
-      );
-    }
-
-    // Fetch the video from the external URL
-    const videoResponse = await fetch(fileUrl);
-
-    if (!videoResponse.ok) {
-      throw new Error(`Failed to fetch video: ${videoResponse.statusText}`);
-    }
-
-    // Get the video data as a ReadableStream
-    const videoStream = videoResponse.body;
-
-    if (!videoStream) {
-      throw new Error("Video stream is not available");
-    }
-
-    // Set headers to force download
-    const headers = new Headers();
-    headers.set("Content-Disposition", `attachment; filename="${filename}"`);
-    // Try to get Content-Type from original response, fallback to generic video type
-    headers.set(
-      "Content-Type",
-      videoResponse.headers.get("Content-Type") || "video/mp4"
+  if (!fileUrl.startsWith("https://")) {
+    return NextResponse.json(
+      { error: "invalidUrl", message: "Only HTTPS URLs are allowed" },
+      { status: 400 }
     );
-    // Optionally set Content-Length if available
-    if (videoResponse.headers.get("Content-Length")) {
-      headers.set(
-        "Content-Length",
-        videoResponse.headers.get("Content-Length")!
+  }
+
+  try {
+    // Instagram CDN URLs require these headers, otherwise 403/redirect milta hai
+    const response = await fetch(fileUrl, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        Referer: "https://www.instagram.com/",
+        Origin: "https://www.instagram.com",
+        Accept: "video/mp4,video/*;q=0.9,image/webp,image/*;q=0.8,*/*;q=0.5",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Sec-Fetch-Dest": fileUrl.endsWith(".mp4") ? "video" : "image",
+        "Sec-Fetch-Mode": "no-cors",
+        "Sec-Fetch-Site": "cross-site",
+        Connection: "keep-alive",
+      },
+      // Redirects follow karo (Instagram CDN kabhi kabhi redirect karta hai)
+      redirect: "follow",
+    });
+
+    if (!response.ok) {
+      console.error(
+        `Upstream fetch failed: ${response.status} ${response.statusText} for URL: ${fileUrl}`
+      );
+      return NextResponse.json(
+        {
+          error: "upstreamError",
+          message: `Failed to fetch media: ${response.status} ${response.statusText}`,
+        },
+        { status: response.status === 403 ? 403 : 502 }
       );
     }
 
-    // Return the stream response
-    return new NextResponse(videoStream, {
+    const contentType =
+      response.headers.get("Content-Type") ||
+      (filename.endsWith(".mp4") ? "video/mp4" : "image/jpeg");
+
+    const contentLength = response.headers.get("Content-Length");
+
+    const stream = response.body;
+    if (!stream) {
+      throw new Error("Empty response body from upstream");
+    }
+
+    const headers = new Headers();
+
+    // Force browser ko file download karne ke liye
+    headers.set(
+      "Content-Disposition",
+      `attachment; filename="${encodeURIComponent(filename)}"`
+    );
+    headers.set("Content-Type", contentType);
+
+    if (contentLength) {
+      headers.set("Content-Length", contentLength);
+    }
+
+    // Cache karo taaki baar baar request na jaye
+    headers.set("Cache-Control", "public, max-age=3600");
+
+    // CORS headers agar same-origin se call ho
+    headers.set("Access-Control-Allow-Origin", "*");
+
+    return new NextResponse(stream, {
       status: 200,
-      headers: headers,
+      headers,
     });
   } catch (error: any) {
     console.error("Download proxy error:", error);
     return NextResponse.json(
-      { error: "serverError", message: error.message },
+      {
+        error: "serverError",
+        message: error?.message || "Unknown server error",
+      },
       { status: 500 }
     );
   }
