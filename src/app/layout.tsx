@@ -13,8 +13,10 @@ import { cn } from "@/lib/utils";
 import { siteMetadata } from "@/lib/site";
 import { getLocale, getMessages } from "next-intl/server";
 
-// ✅ Critical CSS ko inline karo
+// ✅ CSS ko directly import karo (manual link tag mat use karo)
 import "./globals.css";
+// Critical CSS ko bhi import karo - ye build time pe merge ho jayega
+import "./critical.css";
 
 const geistSans = RootFont({
   variable: "--font-root-sans",
@@ -95,11 +97,11 @@ export default async function RootLayout({
   return (
     <html lang={locale} className="scroll-smooth" suppressHydrationWarning>
       <head>
-        {/* ✅ Critical preconnect only */}
+        {/* ✅ Only preconnect and preload - no stylesheet links */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         
-        {/* ✅ Preload critical CSS */}
+        {/* ✅ Preload critical assets */}
         <link 
           rel="preload" 
           href="/favicon.ico" 
@@ -107,13 +109,29 @@ export default async function RootLayout({
           type="image/x-icon"
         />
         
-        {/* ✅ Inline critical CSS for above-fold content */}
+        {/* ✅ Inline critical CSS for above-fold content (optional - for performance) */}
         <style dangerouslySetInnerHTML={{
           __html: `
-            /* Critical CSS */
-            body { margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-            .scroll-smooth { scroll-behavior: smooth; }
-            .antialiased { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+            /* Critical CSS for above-the-fold */
+            :root {
+              --background: 0 0% 100%;
+              --foreground: 222.2 84% 4.9%;
+            }
+            .dark {
+              --background: 222.2 84% 4.9%;
+              --foreground: 210 40% 98%;
+            }
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            body {
+              font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+              background: #ffffff;
+              -webkit-font-smoothing: antialiased;
+              -moz-osx-font-smoothing: grayscale;
+            }
           `
         }} />
         

@@ -28,11 +28,12 @@ const nextConfig: NextConfig = {
   
   // Compression and optimization
   compress: true,
-  // ❌ Remove swcMinify - ab default hai
-  // swcMinify: true,
   poweredByHeader: false,
   reactStrictMode: true,
   productionBrowserSourceMaps: false,
+  
+  // ❌ Remove optimizeFonts - deprecated in Next.js 15
+  // optimizeFonts: true,
   
   // Remove console logs in production
   compiler: {
@@ -45,7 +46,6 @@ const nextConfig: NextConfig = {
   // Experimental features for better performance
   experimental: {
     optimizePackageImports: ['lucide-react', 'sonner', 'react-hook-form'],
-    // ✅ Fix: Update turbo.loaders to turbo.rules
     turbo: {
       rules: {
         '*.svg': ['@svgr/webpack'],
@@ -54,10 +54,15 @@ const nextConfig: NextConfig = {
     scrollRestoration: true,
     optimisticClientCache: true,
     manualClientBasePath: false,
+    optimizeCss: true,
+    webpackBuildWorker: true,
   },
   
-  // ✅ Remove i18n - Ab App Router me next-intl handle karega
-  // i18n: { ... } // ❌ REMOVE THIS COMPLETELY
+  // On-demand entrypoints for better code splitting
+  onDemandEntries: {
+    maxInactiveAge: 60 * 1000,
+    pagesBufferLength: 5,
+  },
   
   // Cache headers for static assets
   async headers() {
@@ -89,6 +94,10 @@ const nextConfig: NextConfig = {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()'
           },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=0, must-revalidate'
+          },
         ],
       },
       {
@@ -98,10 +107,27 @@ const nextConfig: NextConfig = {
             key: 'Cache-Control',
             value: 'no-store, no-cache, must-revalidate, proxy-revalidate',
           },
+          {
+            key: 'Pragma',
+            value: 'no-cache',
+          },
+          {
+            key: 'Expires',
+            value: '0',
+          },
         ],
       },
       {
         source: '/_next/static/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/static/(.*)',
         headers: [
           {
             key: 'Cache-Control',
@@ -144,10 +170,19 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      {
+        source: '/_next/static/css/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
     ];
   },
   
-  // ✅ Simple redirects only
+  // Simple redirects only
   async redirects() {
     return [
       {
@@ -187,10 +222,18 @@ const nextConfig: NextConfig = {
               priority: 20,
               reuseExistingChunk: true,
             },
+            styles: {
+              name: 'styles',
+              test: /\.(css|scss)$/,
+              chunks: 'all',
+              enforce: true,
+              priority: 30,
+            },
           },
         },
       };
     }
+    
     return config;
   },
   
@@ -198,6 +241,7 @@ const nextConfig: NextConfig = {
   env: {
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_GOOGLE_VERIFICATION: process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION,
+    NEXT_PUBLIC_APP_ENV: process.env.NODE_ENV,
   },
   
   staticPageGenerationTimeout: 120,
@@ -205,6 +249,9 @@ const nextConfig: NextConfig = {
   skipMiddlewareUrlNormalize: true,
   distDir: '.next',
   cleanDistDir: true,
+  
+  pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
+  trailingSlash: false,
 };
 
 export default withNextIntl(nextConfig);
