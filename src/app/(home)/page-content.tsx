@@ -10,7 +10,6 @@ import { InstagramProfileDownloader } from "./_components/instagram-profile-down
 import { InstagramBulkDownloader } from "./_components/instagram-bulk-downloader";
 import { InstagramThumbnailDownloader } from "./_components/instagram-thumbnail-downloader";
 
-
 export default function HomePage() {
   return (
     <div>
@@ -50,15 +49,14 @@ export default function HomePage() {
             {/* Thumbnail Downloader */}
             <InstagramThumbnailDownloader />
 
+            {/* Bulk Downloader */}
+            <InstagramBulkDownloader />
+
             {/* Story Downloader */}
             <InstagramStoryDownloader />
 
             {/* Profile Picture Downloader */}
             <InstagramProfileDownloader />
-
-            {/* Bulk Downloader */}
-            <InstagramBulkDownloader />
-
           </div>
         </div>
 

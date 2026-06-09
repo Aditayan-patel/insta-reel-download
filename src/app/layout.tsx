@@ -34,9 +34,14 @@ export const viewport: Viewport = {
   ],
 };
 
+// ✅ ADDED: Explicit title template for better SEO
 export const metadata: Metadata = {
   ...siteMetadata,
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://gramgrabberz.com"),
+  title: {
+    default: "ReelsDL - Download Instagram Reels & Videos Free",
+    template: "%s | ReelsDL"
+  },
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://reelsdl.vercel.app"),
   formatDetection: {
     email: false,
     address: false,
@@ -44,12 +49,17 @@ export const metadata: Metadata = {
   },
   openGraph: {
     ...siteMetadata.openGraph,
+    title: "ReelsDL - Download Instagram Reels & Videos Free",
+    description: "Download Instagram reels, videos, and stories for free. No registration, no login required. Fast and HD quality.",
     type: "website",
     locale: "en_US",
     alternateLocale: ["hi_IN"],
+    siteName: "ReelsDL",
   },
   twitter: {
     ...siteMetadata.twitter,
+    title: "ReelsDL - Download Instagram Reels & Videos Free",
+    description: "Download Instagram reels and videos instantly. Free, fast, and no login required.",
     card: "summary_large_image",
   },
   robots: {
@@ -70,6 +80,9 @@ export const metadata: Metadata = {
     google: process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION,
   },
   category: "technology",
+  keywords: ["instagram downloader", "reels downloader", "video downloader", "instagram saver", "reelsdl"],
+  applicationName: "ReelsDL",
+  authors: [{ name: "riad-azz" }],
 };
 
 export default async function RootLayout({
@@ -119,6 +132,9 @@ export default async function RootLayout({
         
         {/* Manifest for PWA */}
         <link rel="manifest" href="/site.webmanifest" />
+        
+        {/* Title override for head */}
+        <title>ReelsDL - Download Instagram Reels & Videos Free</title>
       </head>
       <body className={cn("antialiased", geistSans.className)}>
         <LocaleProvider locale={locale} messages={messages}>
