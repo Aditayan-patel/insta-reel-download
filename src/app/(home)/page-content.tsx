@@ -1,3 +1,5 @@
+"use client";  // ✅ Add this at the top
+
 import dynamic from 'next/dynamic';
 import { Hero } from "./_components/hero";
 import { Features } from "./_components/features";
@@ -5,7 +7,7 @@ import { HowItWorks } from "./_components/how-it-works";
 import { Testimonials } from "./_components/testimonials";
 import { FrequentlyAsked } from "./_components/frequently-asked";
 
-// ✅ Lazy load non-critical components
+// ✅ Lazy load non-critical components with ssr: false (allowed in client component)
 const InstagramStoryDownloader = dynamic(
   () => import("./_components/instagram-story-downloader").then(mod => mod.InstagramStoryDownloader),
   { 
