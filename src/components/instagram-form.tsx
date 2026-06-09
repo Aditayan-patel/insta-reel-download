@@ -20,13 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-import {
-  Download,
-  Loader2,
-  X,
-  Play,
-  CheckCircle2,
-} from "lucide-react";
+import { Download, Loader2, X, Play, CheckCircle2 } from "lucide-react";
 
 import { cn, getPostShortcode, isShortcodePresent } from "@/lib/utils";
 import { useGetInstagramPostMutation } from "@/features/react-query/mutations/instagram";
@@ -113,7 +107,7 @@ function normalizeMedia(data: any): MediaItem[] {
           return null;
         })
         .filter((item: any) => item !== null);
-      
+
       if (videos.length > 0) return videos;
     }
 
@@ -179,7 +173,11 @@ export function InstagramForm(props: InstagramFormProps) {
   const t = useTranslations("components.instagramForm");
   const { pastedUrl, onUrlConsumed, className } = props;
 
-  const { isError, isPending, mutateAsync: getInstagramPost } = useGetInstagramPostMutation();
+  const {
+    isError,
+    isPending,
+    mutateAsync: getInstagramPost,
+  } = useGetInstagramPostMutation();
 
   const formSchema = useFormSchema();
 
@@ -190,7 +188,9 @@ export function InstagramForm(props: InstagramFormProps) {
 
   // Preview state
   const [mediaItems, setMediaItems] = React.useState<MediaItem[]>([]);
-  const [downloadingIndex, setDownloadingIndex] = React.useState<number | null>(null);
+  const [downloadingIndex, setDownloadingIndex] = React.useState<number | null>(
+    null
+  );
 
   const errorMessage = form.formState.errors.url?.message;
   const isDisabled = isPending || !form.formState.isDirty;
@@ -198,7 +198,11 @@ export function InstagramForm(props: InstagramFormProps) {
 
   // ── Cache helpers ──────────────────────────────────────────────────────────
 
-  function setCached(shortcode: string, mediaItems?: MediaItem[], invalid?: CachedEntry["invalid"]) {
+  function setCached(
+    shortcode: string,
+    mediaItems?: MediaItem[],
+    invalid?: CachedEntry["invalid"]
+  ) {
     cachedEntries.current.set(shortcode, {
       mediaItems,
       expiresAt: Date.now() + CACHE_TIME,
@@ -254,17 +258,17 @@ export function InstagramForm(props: InstagramFormProps) {
   // Helper function to safely extract error message from API response
   function getErrorMessage(data: unknown): string {
     const errorData = data as APIErrorResponse;
-    
+
     // Check for error field
     if (errorData?.error) {
       return errorData.error;
     }
-    
+
     // Check for message field
     if (errorData?.message) {
       return errorData.message;
     }
-    
+
     // Default error
     return "unknown_error";
   }
@@ -324,7 +328,7 @@ export function InstagramForm(props: InstagramFormProps) {
         // Safely get error message from response
         const errorKey = getErrorMessage(data);
         const errorMessageKey = `serverErrors.${errorKey}`;
-        
+
         // Check if translation exists, fallback to generic message
         let errorMessage: string;
         try {
@@ -345,10 +349,14 @@ export function InstagramForm(props: InstagramFormProps) {
             errorMessage = t("serverErrors.serverError");
           }
         }
-        
+
         form.setError("url", { message: errorMessage });
-        
-        if ([HTTP_CODE_ENUM.BAD_REQUEST, HTTP_CODE_ENUM.NOT_FOUND].includes(status)) {
+
+        if (
+          [HTTP_CODE_ENUM.BAD_REQUEST, HTTP_CODE_ENUM.NOT_FOUND].includes(
+            status
+          )
+        ) {
           setCached(shortcode, undefined, { messageKey: errorMessageKey });
         }
       } else {
@@ -370,7 +378,10 @@ export function InstagramForm(props: InstagramFormProps) {
     if (pastedUrl && pastedUrl !== previousPastedUrl.current) {
       previousPastedUrl.current = pastedUrl;
       setMediaItems([]);
-      form.setValue("url", pastedUrl, { shouldDirty: true, shouldValidate: true });
+      form.setValue("url", pastedUrl, {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
       form.clearErrors("url");
       onUrlConsumed?.();
       setTimeout(() => inputRef.current?.focus(), 100);
@@ -398,14 +409,19 @@ export function InstagramForm(props: InstagramFormProps) {
 
       {/* Form */}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex w-full items-end gap-2">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="flex w-full items-end gap-2"
+        >
           <FormField
             control={form.control}
             name="url"
             rules={{ required: true }}
             render={({ field }) => (
               <FormItem className="w-full">
-                <FormLabel className="sr-only">{t("inputs.url.label")}</FormLabel>
+                <FormLabel className="sr-only">
+                  {t("inputs.url.label")}
+                </FormLabel>
                 <FormControl>
                   <div className="relative w-full">
                     <Input
@@ -430,10 +446,13 @@ export function InstagramForm(props: InstagramFormProps) {
                       <button
                         type="button"
                         onClick={clearAll}
-                        className="group absolute right-3 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-slate-400 transition-all duration-200 hover:bg-red-50 hover:text-red-500 dark:text-slate-500 dark:hover:bg-red-950/50 dark:hover:text-red-400"
-                        aria-label="Clear input"
+                        aria-label="Clear input" // ✅ Already there - good!
+                        className="group absolute top-1/2 right-3 -translate-y-1/2 rounded-lg p-1.5 text-slate-400 transition-all duration-200 hover:bg-red-50 hover:text-red-500 dark:text-slate-500 dark:hover:bg-red-950/50 dark:hover:text-red-400"
                       >
-                        <X className="h-4 w-4 transition-transform duration-200 group-hover:rotate-90" />
+                        <X
+                          className="h-4 w-4 transition-transform duration-200 group-hover:rotate-90"
+                          aria-hidden="true"
+                        />
                       </button>
                     )}
                   </div>
@@ -445,14 +464,19 @@ export function InstagramForm(props: InstagramFormProps) {
           <Button
             disabled={isDisabled}
             type="submit"
+            aria-label="Download Instagram reel" // ✅ Add this
+            title="Download Instagram reel" // ✅ Add this
             className="group relative h-12 overflow-hidden rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 px-5 text-sm font-medium text-white shadow-lg shadow-teal-200/50 transition-all duration-300 hover:from-teal-700 hover:to-emerald-700 hover:shadow-xl hover:shadow-teal-200/60 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-teal-900/50 dark:hover:shadow-teal-900/60"
           >
             <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
             <span className="relative flex items-center gap-2">
               {isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
               ) : (
-                <Download className="h-4 w-4 transition-transform duration-200 group-hover:translate-y-0.5" />
+                <Download
+                  className="h-4 w-4 transition-transform duration-200 group-hover:translate-y-0.5"
+                  aria-hidden="true"
+                />
               )}
               <span className="hidden sm:inline">{t("submit")}</span>
             </span>
@@ -476,9 +500,11 @@ export function InstagramForm(props: InstagramFormProps) {
             {mediaItems.length > 1 && (
               <button
                 onClick={handleDownloadAll}
+                aria-label="Download all reels" // ✅ Add this
+                title="Download all reels" // ✅ Add this
                 className="inline-flex items-center gap-1 rounded-lg bg-teal-500 px-2.5 py-1 text-[11px] font-medium text-white transition-colors hover:bg-teal-600"
               >
-                <Download className="h-2.5 w-2.5" />
+                <Download className="h-2.5 w-2.5" aria-hidden="true" />
                 Download All
               </button>
             )}
@@ -548,13 +574,15 @@ function MediaCard({
     <button
       onClick={onDownload}
       disabled={isDownloading}
+      aria-label={`Download reel ${index + 1}`}
       title={`Download reel ${index + 1}`}
       className={cn(
         "group relative overflow-hidden rounded-xl border border-slate-200/80 bg-slate-100 transition-all duration-200",
         "hover:border-teal-400 hover:shadow-md hover:shadow-teal-100/50",
         "disabled:cursor-wait dark:border-slate-700 dark:bg-slate-800",
         "dark:hover:border-teal-500 dark:hover:shadow-teal-900/20",
-        isAlone ? "w-full max-w-[220px] aspect-square" : "w-full aspect-square"
+        "focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2",
+        isAlone ? "aspect-square w-full max-w-[220px]" : "aspect-square w-full"
       )}
     >
       {/* Thumbnail */}
@@ -562,23 +590,36 @@ function MediaCard({
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={thumbSrc}
-          alt={`reel ${index + 1}`}
+          alt={`Reel ${index + 1} thumbnail`}
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           onError={() => setThumbErr(true)}
           loading="lazy"
+          decoding="async"
         />
       ) : (
         <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-700 to-slate-900">
-          <Play className="h-6 w-6 text-white/60" />
+          <Play className="h-6 w-6 text-white/60" aria-hidden="true" />
+          <span className="sr-only">Video thumbnail</span>
         </div>
       )}
 
       {/* Type pill — top left */}
       <div className="absolute left-1.5 top-1.5">
         <span className="inline-flex items-center gap-0.5 rounded bg-black/55 px-1 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white backdrop-blur-sm">
-          <Play className="h-2 w-2" />MP4
+          <Play className="h-2 w-2" aria-hidden="true" />
+          <span>MP4</span>
         </span>
       </div>
+
+      {/* Download indicator badge */}
+      {isDownloading && (
+        <div className="absolute right-1.5 top-1.5">
+          <span className="inline-flex items-center gap-0.5 rounded bg-teal-500 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white">
+            <Loader2 className="h-2 w-2 animate-spin" aria-hidden="true" />
+            <span>Downloading</span>
+          </span>
+        </div>
+      )}
 
       {/* Hover overlay */}
       <div
@@ -588,12 +629,12 @@ function MediaCard({
             ? "bg-teal-500/25 backdrop-blur-[2px]"
             : "bg-transparent group-hover:bg-black/35"
         )}
+        aria-hidden="true"
       >
-        {isDownloading ? (
-          <Loader2 className="h-5 w-5 animate-spin text-white" />
-        ) : (
+        {!isDownloading && (
           <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90 opacity-0 shadow transition-opacity duration-200 group-hover:opacity-100 dark:bg-slate-900/90">
-            <Download className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
+            <Download className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" aria-hidden="true" />
+            <span className="sr-only">Download</span>
           </div>
         )}
       </div>

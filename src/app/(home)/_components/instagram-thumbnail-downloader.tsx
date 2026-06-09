@@ -1,13 +1,14 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import {
   Download,
   Loader2,
   Link2,
   Search,
   ImagePlus,
-  Image,
+  Image as ImageIcon,
   Video,
   ClipboardPaste,
   CheckCircle2,
@@ -25,6 +26,7 @@ export function InstagramThumbnailDownloader() {
   const [url, setUrl] = React.useState("");
   const [mediaItems, setMediaItems] = React.useState<MediaItem[]>([]);
   const [loading, setLoading] = React.useState(false);
+  const [pasted, setPasted] = React.useState(false);
 
   const extractShortcode = (url: string) => {
     let cleanUrl = url.trim().split("?")[0];
@@ -42,19 +44,30 @@ export function InstagramThumbnailDownloader() {
       const text = await navigator.clipboard.readText();
       if (text && text.includes("instagram.com")) {
         setUrl(text);
-        toast.success("URL pasted!");
+        setPasted(true);
+        setTimeout(() => setPasted(false), 1800);
+        toast.success("URL pasted!", {
+          icon: "📋",
+          duration: 1500,
+        });
       } else {
-        toast.error("No valid Instagram URL in clipboard");
+        toast.error("No valid Instagram URL in clipboard", {
+          icon: "❌",
+        });
       }
     } catch {
-      toast.error("Clipboard access denied");
+      toast.error("Clipboard access denied", {
+        icon: "❌",
+      });
     }
   };
 
   const handleFetchMedia = async () => {
     const shortcode = extractShortcode(url);
     if (!shortcode) {
-      toast.error("Invalid Instagram URL");
+      toast.error("Invalid Instagram URL", {
+        icon: "❌",
+      });
       return;
     }
 
@@ -67,17 +80,28 @@ export function InstagramThumbnailDownloader() {
 
       if (data.mediaUrls && data.mediaUrls.length > 0) {
         setMediaItems(data.mediaUrls);
-        toast.success(`Found ${data.mediaUrls.length} items!`);
+        toast.success(`Found ${data.mediaUrls.length} items!`, {
+          icon: "✅",
+          duration: 2000,
+        });
         setUrl("");
       } else if (data.downloadUrl) {
         setMediaItems([{ url: data.downloadUrl, type: data.type || "image" }]);
-        toast.success("Found 1 item!");
+        toast.success("Found 1 item!", {
+          icon: "✅",
+          duration: 2000,
+        });
         setUrl("");
       } else {
-        toast.error("No media found in this post");
+        toast.error("No media found in this post", {
+          icon: "❌",
+        });
       }
     } catch (err: any) {
-      toast.error(err.message);
+      toast.error(err.message || "Failed to fetch media", {
+        icon: "❌",
+        duration: 3000,
+      });
     } finally {
       setLoading(false);
     }
@@ -87,7 +111,10 @@ export function InstagramThumbnailDownloader() {
     const ext = type === "video" ? "mp4" : "jpg";
     const proxyUrl = `/api/download-proxy?url=${encodeURIComponent(mediaUrl)}&filename=instagram_${index + 1}.${ext}`;
     window.open(proxyUrl, "_blank");
-    toast.success(`${type === "video" ? "Video" : "Image"} ${index + 1} download started!`);
+    toast.success(`${type === "video" ? "Video" : "Image"} ${index + 1} download started!`, {
+      icon: "⬇️",
+      duration: 2000,
+    });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -96,7 +123,7 @@ export function InstagramThumbnailDownloader() {
 
   return (
     <div className="group relative rounded-2xl border border-neutral-200 bg-teal-500/30 dark:border-neutral-800 dark:bg-black/80 p-5 shadow-sm transition-all duration-500">
-      {/* Bottom shimmer line - added hover effect */}
+      {/* Bottom shimmer line */}
       <div className="absolute bottom-0 left-1/2 h-0.5 w-0 -translate-x-1/2 rounded-full bg-gradient-to-r from-orange-400 via-pink-400 to-orange-400 transition-all duration-500 group-hover:w-3/5" />
 
       {/* Header */}
@@ -125,12 +152,13 @@ export function InstagramThumbnailDownloader() {
       {/* Input Row */}
       <div className="flex gap-2 mb-4">
         <div className="relative flex-1">
-          <Link2 className="absolute top-1/2 left-3 z-10 h-3.5 w-3.5 -translate-y-1/2 text-neutral-400" />
+          <Link2 className="absolute left-3 top-1/2 z-10 h-3.5 w-3.5 -translate-y-1/2 text-neutral-400" />
           <Input
             placeholder="instagram.com/p/..."
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             onKeyDown={handleKeyDown}
+            aria-label="Instagram post or reel URL"
             className="h-9 pl-8 pr-3 text-[13px] rounded-xl border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus-visible:ring-orange-400/30 focus-visible:border-orange-400"
           />
         </div>
@@ -140,9 +168,14 @@ export function InstagramThumbnailDownloader() {
           onClick={handlePaste}
           variant="outline"
           size="sm"
+          aria-label="Paste URL from clipboard"
           className="h-9 rounded-xl border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 text-[12px] font-medium px-3 gap-1.5 transition-all"
         >
-          <ClipboardPaste className="h-3.5 w-3.5" />
+          {pasted ? (
+            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+          ) : (
+            <ClipboardPaste className="h-3.5 w-3.5" />
+          )}
           Paste
         </Button>
 
@@ -151,6 +184,7 @@ export function InstagramThumbnailDownloader() {
           onClick={handleFetchMedia}
           disabled={loading}
           size="sm"
+          aria-label="Fetch media"
           className="h-9 rounded-xl bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white text-[12px] font-medium px-4 gap-1.5 shadow-sm transition-all disabled:opacity-60"
         >
           {loading ? (
@@ -176,29 +210,51 @@ export function InstagramThumbnailDownloader() {
                 onClick={() => handleDownload(item.url, index, item.type)}
               >
                 {/* Badge */}
-                <div className="absolute top-1.5 left-1.5 z-10 flex items-center gap-1 rounded-md bg-black/50 backdrop-blur-sm px-1.5 py-0.5">
+                <div className="absolute left-1.5 top-1.5 z-10 flex items-center gap-1 rounded-md bg-black/50 backdrop-blur-sm px-1.5 py-0.5">
                   {item.type === "video" ? (
                     <Video className="h-2.5 w-2.5 text-white" />
                   ) : (
-                    <Image className="h-2.5 w-2.5 text-white" />
+                    <ImageIcon className="h-2.5 w-2.5 text-white" />
                   )}
                   <span className="text-[10px] font-medium text-white/90">
                     {index + 1}
                   </span>
                 </div>
 
-                {/* Image */}
-                <div className="aspect-square overflow-hidden">
-                  <img
-                    src={getProxyImageUrl(item.url)}
-                    alt={`Media ${index + 1}`}
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover/card:scale-105"
-                    loading="lazy"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src =
-                        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23f0f0f0' width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%23aaa' font-size='13' font-family='sans-serif'%3EPreview%3C/text%3E%3C/svg%3E";
-                    }}
-                  />
+                {/* Image/Video Preview */}
+                <div className="relative aspect-square overflow-hidden bg-neutral-200 dark:bg-neutral-800">
+                  {item.type === "video" ? (
+                    <video
+                      src={item.url}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover/card:scale-105"
+                      muted
+                      loop
+                      playsInline
+                      aria-label={`Video preview ${index + 1}`}
+                    />
+                  ) : (
+                    <>
+                      <Image
+                        src={getProxyImageUrl(item.url)}
+                        alt={`Media item ${index + 1} from Instagram post`}
+                        fill
+                        className="object-cover transition-transform duration-500 group-hover/card:scale-105"
+                        sizes="(max-width: 768px) 33vw, 200px"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const parent = target.parentElement;
+                          if (parent) {
+                            parent.classList.add('bg-gradient-to-br', 'from-orange-100', 'to-pink-100', 'dark:from-orange-950/30', 'dark:to-pink-950/30');
+                          }
+                        }}
+                      />
+                      {/* Fallback for failed images */}
+                      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-orange-100 to-pink-100 dark:from-orange-950/30 dark:to-pink-950/30 opacity-0 group-hover/card:opacity-100 transition-opacity">
+                        <ImageIcon className="h-8 w-8 text-orange-400 dark:text-orange-600" />
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 {/* Hover overlay */}
@@ -222,7 +278,7 @@ export function InstagramThumbnailDownloader() {
       {!loading && mediaItems.length === 0 && (
         <div className="flex flex-col items-center justify-center py-7 gap-2">
           <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-neutral-100 dark:bg-neutral-900">
-            <Image className="h-5 w-5 text-neutral-300 dark:text-neutral-600" />
+            <ImageIcon className="h-5 w-5 text-neutral-300 dark:text-neutral-600" />
           </div>
           <p className="text-[12px] text-neutral-400 dark:text-neutral-600 text-center max-w-[160px]">
             Paste any post or reel URL to extract media

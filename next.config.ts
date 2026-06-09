@@ -28,28 +28,36 @@ const nextConfig: NextConfig = {
   
   // Compression and optimization
   compress: true,
-  swcMinify: true,
+  // ❌ Remove swcMinify - ab default hai
+  // swcMinify: true,
   poweredByHeader: false,
   reactStrictMode: true,
   productionBrowserSourceMaps: false,
   
-  // Remove console logs in production (except errors)
+  // Remove console logs in production
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production' ? {
       exclude: ['error', 'warn'],
     } : false,
+    reactRemoveProperties: process.env.NODE_ENV === 'production',
   },
   
   // Experimental features for better performance
   experimental: {
     optimizePackageImports: ['lucide-react', 'sonner', 'react-hook-form'],
+    // ✅ Fix: Update turbo.loaders to turbo.rules
     turbo: {
-      loaders: {
-        '.svg': ['@svgr/webpack'],
+      rules: {
+        '*.svg': ['@svgr/webpack'],
       },
     },
     scrollRestoration: true,
+    optimisticClientCache: true,
+    manualClientBasePath: false,
   },
+  
+  // ✅ Remove i18n - Ab App Router me next-intl handle karega
+  // i18n: { ... } // ❌ REMOVE THIS COMPLETELY
   
   // Cache headers for static assets
   async headers() {
@@ -90,27 +98,10 @@ const nextConfig: NextConfig = {
             key: 'Cache-Control',
             value: 'no-store, no-cache, must-revalidate, proxy-revalidate',
           },
-          {
-            key: 'Pragma',
-            value: 'no-cache',
-          },
-          {
-            key: 'Expires',
-            value: '0',
-          },
         ],
       },
       {
         source: '/_next/static/(.*)',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
-      {
-        source: '/static/(.*)',
         headers: [
           {
             key: 'Cache-Control',
@@ -127,10 +118,36 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      {
+        source: '/sitemap.xml',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600, must-revalidate',
+          },
+          {
+            key: 'Content-Type',
+            value: 'application/xml',
+          },
+        ],
+      },
+      {
+        source: '/robots.txt',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600, must-revalidate',
+          },
+          {
+            key: 'Content-Type',
+            value: 'text/plain',
+          },
+        ],
+      },
     ];
   },
   
-  // Redirects for SEO
+  // ✅ Simple redirects only
   async redirects() {
     return [
       {
@@ -148,57 +165,46 @@ const nextConfig: NextConfig = {
   
   // Webpack optimization
   webpack: (config, { isServer, dev }) => {
-    // Optimize chunk loading
     if (!dev && !isServer) {
       config.optimization = {
         ...config.optimization,
         splitChunks: {
           chunks: 'all',
+          minSize: 20000,
+          maxSize: 244000,
           cacheGroups: {
             default: false,
             vendors: false,
-            // Vendor chunk for libraries
             vendor: {
               name: 'vendor',
-              chunks: 'all',
               test: /[\\/]node_modules[\\/]/,
               priority: 10,
+              reuseExistingChunk: true,
             },
-            // React specific chunk
             react: {
               name: 'react',
               test: /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/,
-              chunks: 'all',
               priority: 20,
-            },
-            // UI library chunk
-            ui: {
-              name: 'ui',
-              test: /[\\/]node_modules[\\/](@radix-ui|@headlessui|framer-motion)[\\/]/,
-              chunks: 'all',
-              priority: 15,
+              reuseExistingChunk: true,
             },
           },
         },
       };
     }
-    
     return config;
   },
   
-  // Environment variables that will be exposed to the browser
+  // Environment variables
   env: {
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_GOOGLE_VERIFICATION: process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION,
   },
   
-  // On-demand revalidation
   staticPageGenerationTimeout: 120,
-  
-  // Traffic management
-  trailingSlash: false,
   skipTrailingSlashRedirect: true,
   skipMiddlewareUrlNormalize: true,
+  distDir: '.next',
+  cleanDistDir: true,
 };
 
 export default withNextIntl(nextConfig);

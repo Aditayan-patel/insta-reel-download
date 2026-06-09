@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { Download, Loader2, Search, User, Verified, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,10 +29,16 @@ export function InstagramProfileDownloader() {
       if (!response.ok) throw new Error(data.message);
       
       setProfile(data.profile);
-      toast.success("Profile found!");
-      setUsername(""); // clear input after search
+      toast.success("Profile found!", {
+        icon: "✅",
+        duration: 2000,
+      });
+      setUsername("");
     } catch (err: any) {
-      toast.error(err.message);
+      toast.error(err.message, {
+        icon: "❌",
+        duration: 3000,
+      });
     } finally {
       setLoading(false);
     }
@@ -40,7 +47,10 @@ export function InstagramProfileDownloader() {
   const handleDownload = (url: string, username: string) => {
     const proxyUrl = `/api/download-proxy?url=${encodeURIComponent(url)}&filename=${username}_profile.jpg`;
     window.open(proxyUrl, "_blank");
-    toast.success("Download started!");
+    toast.success("Download started!", {
+      icon: "⬇️",
+      duration: 2000,
+    });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -53,12 +63,19 @@ export function InstagramProfileDownloader() {
       const cleaned = text.replace("@", "").trim();
       if (cleaned) {
         setUsername(cleaned);
-        toast.success("Username pasted!");
+        toast.success("Username pasted!", {
+          icon: "📋",
+          duration: 1500,
+        });
       } else {
-        toast.error("No valid username in clipboard");
+        toast.error("No valid username in clipboard", {
+          icon: "❌",
+        });
       }
     } catch {
-      toast.error("Clipboard access denied");
+      toast.error("Clipboard access denied", {
+        icon: "❌",
+      });
     }
   };
 
@@ -99,6 +116,7 @@ export function InstagramProfileDownloader() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             onKeyDown={handleKeyDown}
+            aria-label="Instagram username"
             className="h-9 pl-8 pr-3 text-[13px] rounded-xl border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus-visible:ring-blue-400/30 focus-visible:border-blue-400"
           />
         </div>
@@ -108,6 +126,7 @@ export function InstagramProfileDownloader() {
           onClick={handlePaste}
           variant="outline"
           size="sm"
+          aria-label="Paste username from clipboard"
           className="h-9 rounded-xl border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 text-[12px] font-medium px-3 gap-1.5 transition-all"
         >
           Paste
@@ -118,6 +137,7 @@ export function InstagramProfileDownloader() {
           onClick={handleFetchProfile}
           disabled={loading}
           size="sm"
+          aria-label="Fetch profile"
           className="h-9 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white text-[12px] font-medium px-4 gap-1.5 shadow-sm transition-all disabled:opacity-60"
         >
           {loading ? (
@@ -136,13 +156,18 @@ export function InstagramProfileDownloader() {
           
           <div className="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 p-4">
             <div className="flex items-center gap-4">
-              {/* Profile Picture */}
+              {/* Profile Picture - Fixed with Next.js Image */}
               <div className="relative flex-shrink-0">
-                <img 
-                  src={profile.profilePicHD} 
-                  alt={profile.username} 
-                  className="h-16 w-16 rounded-full border-2 border-white object-cover shadow-md dark:border-neutral-700" 
-                />
+                <div className="relative h-16 w-16 rounded-full border-2 border-white shadow-md dark:border-neutral-700 overflow-hidden">
+                  <Image 
+                    src={profile.profilePicHD} 
+                    alt={`${profile.username}'s profile picture`}
+                    fill
+                    className="object-cover"
+                    sizes="64px"
+                    priority={false}
+                  />
+                </div>
                 <div className="absolute -bottom-0.5 -right-0.5 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 p-0.5 shadow-md">
                   <Verified className="h-3 w-3 text-white" />
                 </div>
@@ -158,13 +183,13 @@ export function InstagramProfileDownloader() {
                 </p>
                 <div className="mt-2 flex gap-3 text-[10px]">
                   <span className="font-semibold text-neutral-700 dark:text-neutral-300">
-                    {profile.posts} <span className="font-normal text-neutral-500 dark:text-neutral-400">posts</span>
+                    {profile.posts?.toLocaleString() || 0} <span className="font-normal text-neutral-500 dark:text-neutral-400">posts</span>
                   </span>
                   <span className="font-semibold text-neutral-700 dark:text-neutral-300">
-                    {profile.followers} <span className="font-normal text-neutral-500 dark:text-neutral-400">followers</span>
+                    {profile.followers?.toLocaleString() || 0} <span className="font-normal text-neutral-500 dark:text-neutral-400">followers</span>
                   </span>
                   <span className="font-semibold text-neutral-700 dark:text-neutral-300">
-                    {profile.following} <span className="font-normal text-neutral-500 dark:text-neutral-400">following</span>
+                    {profile.following?.toLocaleString() || 0} <span className="font-normal text-neutral-500 dark:text-neutral-400">following</span>
                   </span>
                 </div>
               </div>
@@ -174,6 +199,7 @@ export function InstagramProfileDownloader() {
             <Button 
               onClick={() => handleDownload(profile.profilePicHD, profile.username)} 
               size="sm"
+              aria-label="Download HD profile picture"
               className="mt-4 h-9 w-full rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white text-[12px] font-medium gap-2 shadow-sm transition-all"
             >
               <Download className="h-3.5 w-3.5" />
