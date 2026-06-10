@@ -1,48 +1,89 @@
 /* src/app/critical.css - Critical CSS for above-the-fold content */
+
+/* CSS Variables - Light Mode (Default) */
 :root {
   --background: 0 0% 100%;
   --foreground: 222.2 84% 4.9%;
 }
 
+/* CSS Variables - Dark Mode */
 .dark {
   --background: 222.2 84% 4.9%;
   --foreground: 210 40% 98%;
 }
 
-* {
+/* Reset Styles */
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* Body Styles */
 body {
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  background: #ffffff;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+  min-height: 100vh;
 }
 
+/* Container */
 .container {
   max-width: 1280px;
   margin: 0 auto;
   padding: 0 1rem;
+  width: 100%;
 }
 
+/* Responsive Container */
 @media (min-width: 768px) {
   .container {
     padding: 0 2rem;
   }
 }
 
-/* Hero section critical styles */
+/* Hero Section Critical Styles */
 .text-4xl {
   font-size: 2.5rem;
   font-weight: 700;
   line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
+/* Responsive Typography */
 @media (min-width: 768px) {
   .text-4xl {
     font-size: 3rem;
   }
+}
+
+@media (min-width: 1024px) {
+  .text-4xl {
+    font-size: 3.5rem;
+  }
+}
+
+/* Ensure smooth dark mode transition */
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Utility Classes for Text Color */
+.text-foreground {
+  color: hsl(var(--foreground));
+}
+
+.bg-background {
+  background-color: hsl(var(--background));
+}
+
+.border-border {
+  border-color: hsl(var(--border));
 }

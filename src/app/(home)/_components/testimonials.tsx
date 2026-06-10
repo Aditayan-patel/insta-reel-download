@@ -79,7 +79,7 @@ export function Testimonials() {
                   className="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white/80 p-6 backdrop-blur-sm transition-all duration-300 hover:-translate-y-2 hover:border-slate-300 hover:shadow-xl hover:shadow-slate-200/50 sm:p-8 dark:border-slate-800/80 dark:bg-slate-900/80 dark:hover:border-slate-700 dark:hover:shadow-slate-900/50"
                 >
                   {/* Card Hover Gradient */}
-                  <div className={`absolute inset-0 bg-gradient-to-br ${stat.bgGradient} opacity-0 transition-opacity duration-300 group-hover:opacity-100 dark:opacity-0`} />
+                  <div className={`absolute inset-0 bg-gradient-to-br ${!stat.bgGradient} opacity-0 transition-opacity duration-300 group-hover:opacity-100 dark:opacity-0`} />
                   
                   {/* Animated Counter Background */}
                   <div className={`absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br ${stat.gradient} opacity-5 blur-2xl transition-all duration-500 group-hover:scale-150 group-hover:opacity-10`} />
