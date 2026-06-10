@@ -40,7 +40,6 @@ export const metadata: Metadata = {
     default: "ReelsDL - Download Instagram Reels & Videos Free",
     template: "%s | ReelsDL"
   },
-  // ... rest of your metadata
 };
 
 export default async function RootLayout({
@@ -54,18 +53,50 @@ export default async function RootLayout({
   return (
     <html lang={locale} className="scroll-smooth" suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* ✅ Google Fonts ke liye preconnect tags */}
+        <link 
+          rel="preconnect" 
+          href="https://fonts.googleapis.com" 
+          crossOrigin="anonymous"
+        />
+        <link 
+          rel="preconnect" 
+          href="https://fonts.gstatic.com" 
+          crossOrigin="anonymous"
+        />
         
-        {/* ✅ Fixed favicon - removed preload, just normal link */}
+        {/* ✅ Favicon */}
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
         
-        {/* ✅ Comment out manifest temporarily if icons missing */}
-        {/* <link rel="manifest" href="/site.webmanifest" /> */}
-        
+        {/* ✅ Theme colors */}
         <meta name="theme-color" content="#14b8a6" media="(prefers-color-scheme: light)" />
         <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
+        
+        {/* ✅ Critical CSS inline */}
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            :root {
+              --background: 0 0% 100%;
+              --foreground: 222.2 84% 4.9%;
+            }
+            .dark {
+              --background: 222.2 84% 4.9%;
+              --foreground: 210 40% 98%;
+            }
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            body {
+              font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+              background-color: hsl(var(--background));
+              color: hsl(var(--foreground));
+              -webkit-font-smoothing: antialiased;
+            }
+          `
+        }} />
       </head>
       <body 
         className={cn("antialiased", geistSans.className)}

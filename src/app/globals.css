@@ -50,16 +50,18 @@
   }
 }
 
+/* ✅ Remove all @apply statements - use direct CSS instead */
 @layer base {
   * {
-    @apply border-border;
+    border-color: hsl(var(--border));
   }
   body {
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
   }
 }
 
-/* Rest of your animations remain same */
+/* Rest of your animations */
 @keyframes float {
   0%, 100% {
     transform: translateY(0) translateX(0);

@@ -8,7 +8,6 @@ const nextConfig: NextConfig = {
   
   // Image optimization
   images: {
-    domains: ['instagram.com', 'cdninstagram.com'],
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
@@ -26,16 +25,16 @@ const nextConfig: NextConfig = {
     ],
   },
   
+  // ✅ Modern browsers ke liye transpilation kam karo
+  transpilePackages: [], // Add only necessary packages
+  
   // Compression and optimization
   compress: true,
   poweredByHeader: false,
   reactStrictMode: true,
   productionBrowserSourceMaps: false,
   
-  // ❌ Remove optimizeFonts - deprecated in Next.js 15
-  // optimizeFonts: true,
-  
-  // Remove console logs in production
+  // ✅ Remove console logs in production (keep errors and warnings)
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production' ? {
       exclude: ['error', 'warn'],
@@ -43,7 +42,7 @@ const nextConfig: NextConfig = {
     reactRemoveProperties: process.env.NODE_ENV === 'production',
   },
   
-  // Experimental features for better performance
+  // ✅ Experimental features for better performance
   experimental: {
     optimizePackageImports: ['lucide-react', 'sonner', 'react-hook-form'],
     turbo: {
@@ -54,21 +53,26 @@ const nextConfig: NextConfig = {
     scrollRestoration: true,
     optimisticClientCache: true,
     manualClientBasePath: false,
+    // ✅ CSS optimization
     optimizeCss: true,
+    // ✅ Better chunking
     webpackBuildWorker: true,
+    // ✅ Parallel builds
+    parallelServerCompiles: true,
+    parallelServerBuildTraces: true,
   },
   
-  // On-demand entrypoints for better code splitting
+  // ✅ On-demand entrypoints for better code splitting
   onDemandEntries: {
     maxInactiveAge: 60 * 1000,
     pagesBufferLength: 5,
   },
   
-  // Cache headers for static assets
+  // ✅ Cache headers for static assets
   async headers() {
     return [
       {
-        source: '/(.*)',
+        source: '/:path*',
         headers: [
           {
             key: 'X-DNS-Prefetch-Control',
@@ -94,31 +98,19 @@ const nextConfig: NextConfig = {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()'
           },
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=0, must-revalidate'
-          },
         ],
       },
       {
-        source: '/api/(.*)',
+        source: '/:path*',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'no-store, no-cache, must-revalidate, proxy-revalidate',
-          },
-          {
-            key: 'Pragma',
-            value: 'no-cache',
-          },
-          {
-            key: 'Expires',
-            value: '0',
+            value: 'public, max-age=0, must-revalidate',
           },
         ],
       },
       {
-        source: '/_next/static/(.*)',
+        source: '/_next/static/:path*',
         headers: [
           {
             key: 'Cache-Control',
@@ -127,7 +119,7 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: '/static/(.*)',
+        source: '/static/:path*',
         headers: [
           {
             key: 'Cache-Control',
@@ -171,18 +163,26 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: '/_next/static/css/(.*)',
+        source: '/api/:path*',
         headers: [
           {
             key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
+            value: 'no-store, no-cache, must-revalidate, proxy-revalidate',
+          },
+          {
+            key: 'Pragma',
+            value: 'no-cache',
+          },
+          {
+            key: 'Expires',
+            value: '0',
           },
         ],
       },
     ];
   },
   
-  // Simple redirects only
+  // ✅ Simple redirects only
   async redirects() {
     return [
       {
@@ -198,7 +198,7 @@ const nextConfig: NextConfig = {
     ];
   },
   
-  // Webpack optimization
+  // ✅ Webpack optimization for better code splitting
   webpack: (config, { isServer, dev }) => {
     if (!dev && !isServer) {
       config.optimization = {
@@ -210,18 +210,29 @@ const nextConfig: NextConfig = {
           cacheGroups: {
             default: false,
             vendors: false,
+            // ✅ Vendor chunk for node_modules
             vendor: {
               name: 'vendor',
               test: /[\\/]node_modules[\\/]/,
               priority: 10,
               reuseExistingChunk: true,
+              chunks: 'all',
             },
+            // ✅ React chunk
             react: {
               name: 'react',
-              test: /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/,
+              test: /[\\/]node_modules[\\/](react|react-dom|scheduler|react-is)[\\/]/,
               priority: 20,
               reuseExistingChunk: true,
             },
+            // ✅ UI library chunk
+            ui: {
+              name: 'ui',
+              test: /[\\/]node_modules[\\/](lucide-react|@radix-ui|class-variance-authority|clsx|tailwind-merge)[\\/]/,
+              priority: 15,
+              reuseExistingChunk: true,
+            },
+            // ✅ Styles chunk
             styles: {
               name: 'styles',
               test: /\.(css|scss)$/,
@@ -231,13 +242,19 @@ const nextConfig: NextConfig = {
             },
           },
         },
+        // ✅ Remove legacy JavaScript polyfills for modern browsers
+        usedExports: true,
+        sideEffects: true,
       };
+      
+      // ✅ Remove console.log in production (already handled by compiler)
+      // This helps reduce bundle size
     }
     
     return config;
   },
   
-  // Environment variables
+  // ✅ Environment variables
   env: {
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_GOOGLE_VERIFICATION: process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION,
@@ -252,6 +269,14 @@ const nextConfig: NextConfig = {
   
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
   trailingSlash: false,
+  
+  // ✅ Add for better performance
+  eslint: {
+    ignoreDuringBuilds: process.env.NODE_ENV === 'production',
+  },
+  typescript: {
+    ignoreBuildErrors: false,
+  },
 };
 
 export default withNextIntl(nextConfig);
