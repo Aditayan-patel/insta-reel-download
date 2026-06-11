@@ -20,7 +20,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-import { Download, Loader2, X, Play, CheckCircle2, ClipboardPaste } from "lucide-react";
+import {
+  Download,
+  Loader2,
+  X,
+  Play,
+  CheckCircle2,
+  ClipboardPaste,
+  Image as ImageIcon,
+} from "lucide-react";
 
 import { cn, getPostShortcode, isShortcodePresent } from "@/lib/utils";
 import { useGetInstagramPostMutation } from "@/features/react-query/mutations/instagram";
@@ -33,7 +41,7 @@ const CACHE_TIME = 5 * 60 * 1000;
 
 interface MediaItem {
   url: string;
-  type: "video";
+  type: "video" | "image";
   thumbnail?: string;
 }
 
@@ -56,10 +64,11 @@ function randomSuffix() {
   return Math.floor(100000 + Math.random() * 900000);
 }
 
-function triggerDownload(mediaUrl: string) {
+function triggerDownload(mediaUrl: string, type: "video" | "image" = "video") {
   if (typeof window === "undefined") return;
 
-  const filename = `reelsdl_${randomSuffix()}.mp4`;
+  const ext = type === "image" ? "jpg" : "mp4";
+  const filename = `reelsdl_${randomSuffix()}.${ext}`;
 
   const proxyUrl = new URL("/api/download-proxy", window.location.origin);
   proxyUrl.searchParams.append("url", mediaUrl);
@@ -75,14 +84,16 @@ function triggerDownload(mediaUrl: string) {
   setTimeout(() => document.body.removeChild(link), 1000);
 }
 
-/** Normalize API response to MediaItem[] - Only videos/reels */
+/** Normalize API response to MediaItem[] - Videos and Images (FIXED) */
+/** Normalize API response to MediaItem[] - Videos and Images (COMPLETELY REWRITTEN) */
 function normalizeMedia(data: any): MediaItem[] {
-  // Shape 1: { mediaUrls: [{url, type, thumbnail?}] } - Filter only videos
+  console.log("Full API Response:", JSON.stringify(data, null, 2));
+  
+  // Shape 1: { mediaUrls: [{url, type, thumbnail?}] }
   if (data?.mediaUrls?.length > 0) {
-    const videos = data.mediaUrls.filter((m: any) => m.type === "video");
-    return videos.map((m: any) => ({
+    return data.mediaUrls.map((m: any) => ({
       url: m.url,
-      type: "video",
+      type: (m.type === "video" ? "video" : "image") as "video" | "image",
       thumbnail: m.thumbnail,
     }));
   }
@@ -90,51 +101,146 @@ function normalizeMedia(data: any): MediaItem[] {
   // Shape 2: { data: { xdt_shortcode_media: {...} } }
   const media = data?.data?.xdt_shortcode_media;
   if (media) {
-    // Carousel — multiple videos only
-    if (media.edge_sidecar_to_children?.edges?.length > 0) {
-      const videos = media.edge_sidecar_to_children.edges
-        .map((edge: any) => {
-          const node = edge.node;
-          if (node.is_video && node.video_url) {
-            const imageUrl =
-              node.display_resources?.slice(-1)?.[0]?.src || node.display_url;
+    console.log("Media object keys:", Object.keys(media));
+    
+    const isVideo = media.is_video === true || 
+                    media.__typename === "GraphVideo" ||
+                    media.video_url !== undefined ||
+                    (media.video_versions && media.video_versions.length > 0);
+    
+    // SINGLE VIDEO / REEL
+    if (isVideo) {
+      const videoUrl = media.video_url || media.video_versions?.[0]?.url;
+      if (videoUrl) {
+        console.log("Found video:", videoUrl);
+        return [{
+          url: videoUrl,
+          type: "video" as const,
+          thumbnail: media.display_url || media.thumbnail_src,
+        }];
+      }
+    }
+    
+    // CAROUSEL via carousel_media (FIXED - removed idx warning)
+    if (media.carousel_media && media.carousel_media.length > 0) {
+      console.log("Processing carousel_media, count:", media.carousel_media.length);
+      const items = media.carousel_media
+        .map((item: any) => {  // ← Removed idx completely
+          if (item.video_versions && item.video_versions.length > 0) {
             return {
-              url: node.video_url,
+              url: item.video_versions[0].url,
               type: "video" as const,
-              thumbnail: imageUrl,
+              thumbnail: item.image_versions2?.candidates?.[0]?.url || null,
+            };
+          } else if (item.image_versions2?.candidates?.length > 0) {
+            const highestQuality = item.image_versions2.candidates[0].url;
+            return {
+              url: highestQuality,
+              type: "image" as const,
+              thumbnail: highestQuality,
             };
           }
           return null;
         })
         .filter((item: any) => item !== null);
-
-      if (videos.length > 0) return videos;
+      
+      if (items.length > 0) return items;
     }
-
-    // Single video/reel
-    if (media.is_video && media.video_url) {
-      return [
-        {
-          url: media.video_url,
-          type: "video",
-          thumbnail:
-            media.display_resources?.slice(-1)?.[0]?.src || media.display_url,
-        },
-      ];
+    
+    // CAROUSEL via edge_sidecar_to_children (FIXED - removed idx warning)
+    if (media.edge_sidecar_to_children?.edges?.length > 0) {
+      console.log("Processing edge_sidecar_to_children, count:", media.edge_sidecar_to_children.edges.length);
+      const items = media.edge_sidecar_to_children.edges
+        .map((edge: any) => {  // ← Removed idx completely
+          const node = edge.node;
+          if (!node) return null;
+          
+          if (node.is_video === true && node.video_url) {
+            const imageUrl = node.display_resources?.slice(-1)?.[0]?.src || node.display_url;
+            return {
+              url: node.video_url,
+              type: "video" as const,
+              thumbnail: imageUrl,
+            };
+          } else if (node.display_url) {
+            let imageUrl = node.display_url;
+            if (node.display_resources && node.display_resources.length > 0) {
+              imageUrl = node.display_resources[node.display_resources.length - 1].src;
+            }
+            return {
+              url: imageUrl,
+              type: "image" as const,
+              thumbnail: node.display_url,
+            };
+          }
+          return null;
+        })
+        .filter((item: any) => item !== null);
+      
+      if (items.length > 0) return items;
+    }
+    
+    // SINGLE IMAGE POST
+    if (media.display_url && !isVideo) {
+      console.log("Processing single image post");
+      
+      let imageUrl = media.display_url;
+      
+      if (media.display_resources && media.display_resources.length > 0) {
+        const highestRes = media.display_resources[media.display_resources.length - 1];
+        if (highestRes && highestRes.src) {
+          imageUrl = highestRes.src;
+          console.log("Using display_resources URL:", imageUrl);
+        }
+      }
+      
+      if (media.image_versions2?.candidates?.length > 0) {
+        const highestQuality = media.image_versions2.candidates[0].url;
+        if (highestQuality) {
+          imageUrl = highestQuality;
+          console.log("Using image_versions2 URL:", imageUrl);
+        }
+      }
+      
+      return [{
+        url: imageUrl,
+        type: "image" as const,
+        thumbnail: media.display_url,
+      }];
+    }
+    
+    // FALLBACK
+    if (media.thumbnail_src && !isVideo) {
+      console.log("Using thumbnail_src as fallback");
+      return [{
+        url: media.thumbnail_src,
+        type: "image" as const,
+        thumbnail: media.thumbnail_src,
+      }];
     }
   }
-
-  // Shape 3: { downloadUrl, type } - Only videos
-  if (data?.downloadUrl && data?.type === "video") {
-    return [
-      {
-        url: data.downloadUrl,
-        type: "video",
-        thumbnail: data.thumbnail,
-      },
-    ];
+  
+  // Shape 3: { downloadUrl, type }
+  if (data?.downloadUrl) {
+    console.log("Using downloadUrl fallback");
+    return [{
+      url: data.downloadUrl,
+      type: (data.type === "video" ? "video" : "image") as "video" | "image",
+      thumbnail: data.thumbnail,
+    }];
   }
-
+  
+  // Shape 4: Direct response from API route
+  if (data?.success === true && data?.mediaUrls) {
+    console.log("Using success.mediaUrls format");
+    return data.mediaUrls.map((m: any) => ({
+      url: m.url,
+      type: m.type,
+      thumbnail: m.thumbnail,
+    }));
+  }
+  
+  console.warn("No media found in response structure");
   return [];
 }
 
@@ -148,7 +254,13 @@ const useFormSchema = () => {
       .string({ required_error: t("url.validation.required") })
       .trim()
       .min(1, { message: t("url.validation.required") })
-      .startsWith("https://www.instagram.com", t("url.validation.invalid"))
+      .refine((value) => {
+        // Accept both instagram.com/p/ (posts) and instagram.com/reel/ (reels)
+        const isValid = value.includes("instagram.com/p/") || 
+                       value.includes("instagram.com/reel/") ||
+                       value.includes("instagram.com/tv/");
+        return isValid;
+      }, { message: t("url.validation.invalid") })
       .refine((value) => isShortcodePresent(value), {
         message: t("url.validation.invalid"),
       }),
@@ -236,7 +348,7 @@ export function InstagramForm(props: InstagramFormProps) {
   async function handlePasteFromClipboard() {
     try {
       const text = await navigator.clipboard.readText();
-      if (text && text.includes("instagram.com")) {
+      if (text && (text.includes("instagram.com"))) {
         form.setValue("url", text, {
           shouldDirty: true,
           shouldValidate: true,
@@ -268,13 +380,16 @@ export function InstagramForm(props: InstagramFormProps) {
 
   async function handleDownloadItem(item: MediaItem, index: number) {
     setDownloadingIndex(index);
-    triggerDownload(item.url);
-    toast.success("Reel is downloading...", {
-      id: `dl-${index}`,
-      position: "top-center",
-      duration: 2000,
-      icon: "⬇️",
-    });
+    triggerDownload(item.url, item.type);
+    toast.success(
+      item.type === "video" ? "Reel is downloading..." : "Image is downloading...",
+      {
+        id: `dl-${index}`,
+        position: "top-center",
+        duration: 2000,
+        icon: "⬇️",
+      }
+    );
     await new Promise((r) => setTimeout(r, 1200));
     setDownloadingIndex(null);
   }
@@ -292,17 +407,14 @@ export function InstagramForm(props: InstagramFormProps) {
   function getErrorMessage(data: unknown): string {
     const errorData = data as APIErrorResponse;
 
-    // Check for error field
     if (errorData?.error) {
       return errorData.error;
     }
 
-    // Check for message field
     if (errorData?.message) {
       return errorData.message;
     }
 
-    // Default error
     return "unknown_error";
   }
 
@@ -331,9 +443,11 @@ export function InstagramForm(props: InstagramFormProps) {
 
       if (status === HTTP_CODE_ENUM.OK) {
         const items = normalizeMedia(data);
+        
+        console.log("Normalized media items:", items); // Debug log
 
         if (items.length === 0) {
-          toast.error("❌ No reels/videos found in this post", {
+          toast.error("❌ No media found in this post", {
             icon: "❌",
             position: "top-center",
             duration: 3000,
@@ -344,12 +458,17 @@ export function InstagramForm(props: InstagramFormProps) {
         setCached(shortcode, items);
         setMediaItems(items);
 
-        toast.success("Video Fetch successful...", {
-          id: "toast-success",
-          position: "top-center",
-          duration: 1500,
-          icon: "✅",
-        });
+        toast.success(
+          items[0].type === "video" 
+            ? "Reel fetched successfully!" 
+            : `${items.length} image${items.length > 1 ? 's' : ''} fetched successfully!`,
+          {
+            id: "toast-success",
+            position: "top-center",
+            duration: 1500,
+            icon: "✅",
+          }
+        );
       } else if (
         [
           HTTP_CODE_ENUM.NOT_FOUND,
@@ -358,20 +477,16 @@ export function InstagramForm(props: InstagramFormProps) {
           HTTP_CODE_ENUM.INTERNAL_SERVER_ERROR,
         ].includes(status)
       ) {
-        // Safely get error message from response
         const errorKey = getErrorMessage(data);
         const errorMessageKey = `serverErrors.${errorKey}`;
 
-        // Check if translation exists, fallback to generic message
         let errorMessage: string;
         try {
           errorMessage = t(errorMessageKey);
-          // If the translation returns the key itself, it doesn't exist
           if (errorMessage === errorMessageKey) {
             throw new Error("Translation not found");
           }
         } catch {
-          // Fallback messages based on status code
           if (status === HTTP_CODE_ENUM.NOT_FOUND) {
             errorMessage = t("serverErrors.notFound");
           } else if (status === HTTP_CODE_ENUM.TOO_MANY_REQUESTS) {
@@ -498,7 +613,7 @@ export function InstagramForm(props: InstagramFormProps) {
             )}
           />
 
-          {/* Paste Button - Outside input, matching download button size */}
+          {/* Paste Button */}
           <Button
             type="button"
             onClick={handlePasteFromClipboard}
@@ -517,8 +632,8 @@ export function InstagramForm(props: InstagramFormProps) {
           <Button
             disabled={isDisabled}
             type="submit"
-            aria-label="Download Instagram reel"
-            title="Download Instagram reel"
+            aria-label="Download Instagram media"
+            title="Download Instagram media"
             className="group relative h-12 overflow-hidden rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 px-5 text-sm font-medium text-white shadow-lg shadow-teal-200/50 transition-all duration-300 hover:from-teal-700 hover:to-emerald-700 hover:shadow-xl hover:shadow-teal-200/60 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-teal-900/50 dark:hover:shadow-teal-900/60"
           >
             <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
@@ -537,7 +652,7 @@ export function InstagramForm(props: InstagramFormProps) {
         </form>
       </Form>
 
-      {/* Media Preview - Only for reels/videos */}
+      {/* Media Preview */}
       {mediaItems.length > 0 && (
         <div className="mt-3 overflow-hidden rounded-2xl border border-slate-200/80 bg-white/60 backdrop-blur-sm dark:border-slate-700/60 dark:bg-slate-900/60">
           {/* Header */}
@@ -546,15 +661,17 @@ export function InstagramForm(props: InstagramFormProps) {
               <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
               <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
                 {mediaItems.length === 1
-                  ? "1 reel ready"
-                  : `${mediaItems.length} reels ready`}
+                  ? mediaItems[0].type === "video" 
+                    ? "1 reel ready" 
+                    : "1 image ready"
+                  : `${mediaItems.length} items ready`}
               </span>
             </div>
             {mediaItems.length > 1 && (
               <button
                 onClick={handleDownloadAll}
-                aria-label="Download all reels"
-                title="Download all reels"
+                aria-label="Download all media"
+                title="Download all media"
                 className="inline-flex items-center gap-1 rounded-lg bg-teal-500 px-2.5 py-1 text-[11px] font-medium text-white transition-colors hover:bg-teal-600"
               >
                 <Download className="h-2.5 w-2.5" aria-hidden="true" />
@@ -617,18 +734,19 @@ function MediaCard({
   const thumbSrc = (() => {
     if (thumbErr) return null;
     if (item.thumbnail) return proxyImg(item.thumbnail);
+    // For images, use the url itself as thumbnail if no thumbnail provided
+    if (item.type === "image" && item.url) return proxyImg(item.url);
     return null;
   })();
 
-  // Single: centered wide card | Multiple: fill grid cell (square)
   const isAlone = total === 1;
 
   return (
     <button
       onClick={onDownload}
       disabled={isDownloading}
-      aria-label={`Download reel ${index + 1}`}
-      title={`Download reel ${index + 1}`}
+      aria-label={`Download ${item.type} ${index + 1}`}
+      title={`Download ${item.type} ${index + 1}`}
       className={cn(
         "group relative overflow-hidden rounded-xl border border-slate-200/80 bg-slate-100 transition-all duration-200",
         "hover:border-teal-400 hover:shadow-md hover:shadow-teal-100/50",
@@ -643,7 +761,7 @@ function MediaCard({
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={thumbSrc}
-          alt={`Reel ${index + 1} thumbnail`}
+          alt={`${item.type === "video" ? "Reel" : "Post"} ${index + 1} thumbnail`}
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
           onError={() => setThumbErr(true)}
           loading="lazy"
@@ -651,16 +769,26 @@ function MediaCard({
         />
       ) : (
         <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-slate-700 to-slate-900">
-          <Play className="h-6 w-6 text-white/60" aria-hidden="true" />
-          <span className="sr-only">Video thumbnail</span>
+          {item.type === "video" ? (
+            <Play className="h-6 w-6 text-white/60" aria-hidden="true" />
+          ) : (
+            <ImageIcon className="h-6 w-6 text-white/60" aria-hidden="true" />
+          )}
+          <span className="sr-only">
+            {item.type === "video" ? "Video thumbnail" : "Image thumbnail"}
+          </span>
         </div>
       )}
 
       {/* Type pill — top left */}
       <div className="absolute left-1.5 top-1.5">
         <span className="inline-flex items-center gap-0.5 rounded bg-black/55 px-1 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-white backdrop-blur-sm">
-          <Play className="h-2 w-2" aria-hidden="true" />
-          <span>MP4</span>
+          {item.type === "video" ? (
+            <Play className="h-2 w-2" aria-hidden="true" />
+          ) : (
+            <ImageIcon className="h-2 w-2" aria-hidden="true" />
+          )}
+          <span>{item.type === "video" ? "MP4" : "JPG"}</span>
         </span>
       </div>
 
@@ -692,5 +820,5 @@ function MediaCard({
         )}
       </div>
     </button>
-  );
+  ); 
 }
