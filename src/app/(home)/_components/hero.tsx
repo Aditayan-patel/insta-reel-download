@@ -14,18 +14,6 @@ export function Hero() {
   const [pastedUrl, setPastedUrl] = React.useState("");
   const formRef = React.useRef<HTMLDivElement>(null);
 
-  const handlePaste = async () => {
-    try {
-      const text = await navigator.clipboard.readText();
-      if (text && text.includes("instagram.com")) {
-        setPastedUrl(text);
-        formRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-    } catch {
-      console.log("Clipboard access denied");
-    }
-  };
-
   return (
     <section
       id={homeSections.hero}
@@ -149,16 +137,16 @@ export function Hero() {
                     toolsSection.scrollIntoView({ behavior: 'smooth' });
                   }
                 }}
-                className="group relative inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-teal-500/10 via-emerald-500/10 to-teal-500/10 px-5 py-2.5 text-sm font-medium text-teal-600 transition-all duration-300 hover:from-teal-500 hover:via-emerald-500 hover:to-teal-500 hover:text-white hover:shadow-lg hover:shadow-teal-500/25 dark:from-teal-400/20 dark:via-emerald-400/20 dark:to-teal-400/20 dark:text-teal-400 dark:hover:from-teal-400 dark:hover:via-emerald-400 dark:hover:to-teal-400 dark:hover:text-gray-900 dark:hover:shadow-teal-400/30"
+                className="group relative inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-teal-500/30 via-emerald-500/45 to-teal-500/60 px-5 py-2.5 text-sm font-medium text-teal-600 transition-all duration-300 hover:from-teal-500 hover:via-emerald-500 hover:to-teal-500 hover:text-white hover:shadow-lg hover:shadow-teal-500/25 dark:from-teal-400/20 dark:via-emerald-400/20 dark:to-teal-400/20 dark:text-teal-400 dark:hover:from-teal-400 dark:hover:via-emerald-400 dark:hover:to-teal-400 dark:hover:text-gray-900 dark:hover:shadow-teal-400/30"
               >
                 {/* Inner content container - no extra absolute elements causing glass effect issues */}
                 <span className="relative flex items-center gap-2.5">
-                  <span className="flex items-center justify-center rounded-full bg-teal-100 p-1 transition-all duration-300 group-hover:bg-white/20 dark:bg-teal-900/50 dark:group-hover:bg-white/20">
+                  <span className="flex items-center justify-center rounded-full bg-teal-300 p-1 transition-all duration-300 group-hover:bg-white/20 dark:bg-teal-900/50 dark:group-hover:bg-white/20">
                     <Wrench className="h-3.5 w-3.5 transition-transform duration-300 group-hover:rotate-12" />
                   </span>
                   <span className="relative">
                     Explore More Tools
-                    <span className="absolute -bottom-0.5 left-0 h-[1.5px] w-0 bg-gradient-to-r from-teal-500 to-emerald-500 transition-all duration-300 group-hover:w-full" />
+                    <span className="absolute -bottom-0.5 left-0 h-[1.5px] w-0 bg-gradient-to-r from-white to-emerald-500 dark:from-white dark:to-emerald-500 transition-all duration-300 group-hover:w-full" />
                   </span>
                   <svg
                     className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5"

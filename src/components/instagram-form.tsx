@@ -473,7 +473,7 @@ export function InstagramForm(props: InstagramFormProps) {
                         if (mediaItems.length > 0) setMediaItems([]);
                       }}
                       className={cn(
-                        "h-12 rounded-xl border-slate-200/80 bg-white/80 pr-10 text-sm backdrop-blur-sm transition-all duration-200 placeholder:text-slate-400 hover:border-slate-300 focus:border-teal-400 focus:ring-2 focus:ring-teal-100 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-300 dark:placeholder:text-slate-500 dark:hover:border-slate-600 dark:focus:border-teal-600 dark:focus:ring-teal-900/50",
+                        "h-12 rounded-xl border-teal-400 bg-white/80 pr-10 text-sm backdrop-blur-sm transition-all duration-200 placeholder:text-slate-400 hover:border--300 focus:border-teal-400 focus:ring-2 focus:ring-teal-400 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-300 dark:placeholder:text-slate-500 dark:hover:border-slate-600 dark:focus:border-teal-600 dark:focus:ring-teal-900/50",
                         errorMessage &&
                           "border-red-300 focus:border-red-400 focus:ring-red-100 dark:border-red-800 dark:focus:border-red-700 dark:focus:ring-red-900/50"
                       )}
@@ -506,7 +506,7 @@ export function InstagramForm(props: InstagramFormProps) {
             title="Paste Instagram URL from clipboard"
             className="group relative h-12 overflow-hidden rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 px-5 text-sm font-medium text-white shadow-lg shadow-teal-200/50 transition-all duration-300 hover:from-teal-700 hover:to-emerald-700 hover:shadow-xl hover:shadow-teal-200/60 dark:shadow-teal-900/50 dark:hover:shadow-teal-900/60"
           >
-            <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
+            <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-teal-400/70 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
             <span className="relative flex items-center gap-2">
               <ClipboardPaste className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
               <span className="hidden sm:inline">Paste</span>
