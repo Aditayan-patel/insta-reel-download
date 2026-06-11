@@ -20,7 +20,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-import { Download, Loader2, X, Play, CheckCircle2 } from "lucide-react";
+import { Download, Loader2, X, Play, CheckCircle2, ClipboardPaste } from "lucide-react";
 
 import { cn, getPostShortcode, isShortcodePresent } from "@/lib/utils";
 import { useGetInstagramPostMutation } from "@/features/react-query/mutations/instagram";
@@ -233,10 +233,43 @@ export function InstagramForm(props: InstagramFormProps) {
     setMediaItems([]);
   }
 
+  async function handlePasteFromClipboard() {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text && text.includes("instagram.com")) {
+        form.setValue("url", text, {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
+        form.clearErrors("url");
+        toast.success("URL pasted successfully!", {
+          duration: 1500,
+          position: "top-center",
+          icon: "📋",
+        });
+        // Auto-submit after paste
+        setTimeout(() => {
+          form.handleSubmit(onSubmit)();
+        }, 100);
+      } else {
+        toast.error("No Instagram URL found in clipboard", {
+          duration: 2000,
+          position: "top-center",
+        });
+      }
+    } catch (error) {
+      console.error("Failed to read clipboard:", error);
+      toast.error("Unable to access clipboard. Please grant permission.", {
+        duration: 2000,
+        position: "top-center",
+      });
+    }
+  }
+
   async function handleDownloadItem(item: MediaItem, index: number) {
     setDownloadingIndex(index);
     triggerDownload(item.url);
-    toast.success(" Reel is downloading...", {
+    toast.success("Reel is downloading...", {
       id: `dl-${index}`,
       position: "top-center",
       duration: 2000,
@@ -311,7 +344,7 @@ export function InstagramForm(props: InstagramFormProps) {
         setCached(shortcode, items);
         setMediaItems(items);
 
-        toast.success(" Video Fetch successful...", {
+        toast.success("Video Fetch successful...", {
           id: "toast-success",
           position: "top-center",
           duration: 1500,
@@ -384,7 +417,10 @@ export function InstagramForm(props: InstagramFormProps) {
       });
       form.clearErrors("url");
       onUrlConsumed?.();
-      setTimeout(() => inputRef.current?.focus(), 100);
+      setTimeout(() => {
+        inputRef.current?.focus();
+        form.handleSubmit(onSubmit)();
+      }, 100);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pastedUrl]);
@@ -418,7 +454,7 @@ export function InstagramForm(props: InstagramFormProps) {
             name="url"
             rules={{ required: true }}
             render={({ field }) => (
-              <FormItem className="w-full">
+              <FormItem className="flex-1">
                 <FormLabel className="sr-only">
                   {t("inputs.url.label")}
                 </FormLabel>
@@ -437,16 +473,17 @@ export function InstagramForm(props: InstagramFormProps) {
                         if (mediaItems.length > 0) setMediaItems([]);
                       }}
                       className={cn(
-                        "h-12 rounded-xl border-slate-200/80 bg-white/80 pr-12 text-sm backdrop-blur-sm transition-all duration-200 placeholder:text-slate-400 hover:border-slate-300 focus:border-teal-400 focus:ring-2 focus:ring-teal-100 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-300 dark:placeholder:text-slate-500 dark:hover:border-slate-600 dark:focus:border-teal-600 dark:focus:ring-teal-900/50",
+                        "h-12 rounded-xl border-slate-200/80 bg-white/80 pr-10 text-sm backdrop-blur-sm transition-all duration-200 placeholder:text-slate-400 hover:border-slate-300 focus:border-teal-400 focus:ring-2 focus:ring-teal-100 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-300 dark:placeholder:text-slate-500 dark:hover:border-slate-600 dark:focus:border-teal-600 dark:focus:ring-teal-900/50",
                         errorMessage &&
                           "border-red-300 focus:border-red-400 focus:ring-red-100 dark:border-red-800 dark:focus:border-red-700 dark:focus:ring-red-900/50"
                       )}
                     />
+                    {/* Clear Button */}
                     {isShowClearButton && (
                       <button
                         type="button"
                         onClick={clearAll}
-                        aria-label="Clear input" // ✅ Already there - good!
+                        aria-label="Clear input"
                         className="group absolute top-1/2 right-3 -translate-y-1/2 rounded-lg p-1.5 text-slate-400 transition-all duration-200 hover:bg-red-50 hover:text-red-500 dark:text-slate-500 dark:hover:bg-red-950/50 dark:hover:text-red-400"
                       >
                         <X
@@ -461,11 +498,27 @@ export function InstagramForm(props: InstagramFormProps) {
             )}
           />
 
+          {/* Paste Button - Outside input, matching download button size */}
+          <Button
+            type="button"
+            onClick={handlePasteFromClipboard}
+            aria-label="Paste from clipboard"
+            title="Paste Instagram URL from clipboard"
+            className="group relative h-12 overflow-hidden rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 px-5 text-sm font-medium text-white shadow-lg shadow-teal-200/50 transition-all duration-300 hover:from-teal-700 hover:to-emerald-700 hover:shadow-xl hover:shadow-teal-200/60 dark:shadow-teal-900/50 dark:hover:shadow-teal-900/60"
+          >
+            <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
+            <span className="relative flex items-center gap-2">
+              <ClipboardPaste className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
+              <span className="hidden sm:inline">Paste</span>
+            </span>
+          </Button>
+
+          {/* Download Button */}
           <Button
             disabled={isDisabled}
             type="submit"
-            aria-label="Download Instagram reel" // ✅ Add this
-            title="Download Instagram reel" // ✅ Add this
+            aria-label="Download Instagram reel"
+            title="Download Instagram reel"
             className="group relative h-12 overflow-hidden rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 px-5 text-sm font-medium text-white shadow-lg shadow-teal-200/50 transition-all duration-300 hover:from-teal-700 hover:to-emerald-700 hover:shadow-xl hover:shadow-teal-200/60 disabled:cursor-not-allowed disabled:opacity-50 dark:shadow-teal-900/50 dark:hover:shadow-teal-900/60"
           >
             <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
@@ -500,8 +553,8 @@ export function InstagramForm(props: InstagramFormProps) {
             {mediaItems.length > 1 && (
               <button
                 onClick={handleDownloadAll}
-                aria-label="Download all reels" // ✅ Add this
-                title="Download all reels" // ✅ Add this
+                aria-label="Download all reels"
+                title="Download all reels"
                 className="inline-flex items-center gap-1 rounded-lg bg-teal-500 px-2.5 py-1 text-[11px] font-medium text-white transition-colors hover:bg-teal-600"
               >
                 <Download className="h-2.5 w-2.5" aria-hidden="true" />

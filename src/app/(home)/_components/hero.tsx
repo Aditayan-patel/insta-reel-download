@@ -4,7 +4,7 @@ import React from "react";
 
 import { useTranslations } from "next-intl";
 
-import { Sparkles, Zap, Shield, Download, ClipboardPaste } from "lucide-react";
+import { Sparkles, Zap, Shield, Download, Wrench } from "lucide-react";
 
 import { homeSections } from "@/lib/constants";
 import { InstagramForm } from "@/components/instagram-form";
@@ -139,27 +139,51 @@ export function Hero() {
           </div>
 
           {/* Instagram Form Section */}
-          <div className="w-full max-w-2xl space-y-3" ref={formRef}>
-            {/* Paste Button */}
+          <div className="w-full max-w-2xl space-y-4" ref={formRef}>
+            {/* Explore More Tools Button - Centered */}
             <div className="flex justify-center">
               <button
-                onClick={handlePaste}
-                className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full border border-teal-300 bg-teal-500/20 px-5 py-2.5 text-sm font-medium text-teal-600 backdrop-blur-sm transition-all duration-300 hover:border-teal-500 hover:bg-teal-100 hover:text-teal-700 hover:shadow-lg dark:border-teal-700 dark:bg-teal-950/50 dark:text-teal-400 dark:hover:border-teal-500 dark:hover:bg-teal-900/50 dark:hover:text-teal-300"
+                onClick={() => {
+                  const toolsSection = document.getElementById('tools');
+                  if (toolsSection) {
+                    toolsSection.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+                className="group relative inline-flex items-center gap-2.5 rounded-full bg-gradient-to-r from-teal-500/10 via-emerald-500/10 to-teal-500/10 px-5 py-2.5 text-sm font-medium text-teal-600 transition-all duration-300 hover:from-teal-500 hover:via-emerald-500 hover:to-teal-500 hover:text-white hover:shadow-lg hover:shadow-teal-500/25 dark:from-teal-400/20 dark:via-emerald-400/20 dark:to-teal-400/20 dark:text-teal-400 dark:hover:from-teal-400 dark:hover:via-emerald-400 dark:hover:to-teal-400 dark:hover:text-gray-900 dark:hover:shadow-teal-400/30"
               >
-                <ClipboardPaste className="h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
-                <span>Paste Instagram Link</span>
-                <span className="ml-1 rounded-md bg-teal-100 px-1.5 py-0.5 text-xs text-teal-600 dark:bg-teal-900/50 dark:text-teal-400">
-                  Click Me
+                {/* Inner content container - no extra absolute elements causing glass effect issues */}
+                <span className="relative flex items-center gap-2.5">
+                  <span className="flex items-center justify-center rounded-full bg-teal-100 p-1 transition-all duration-300 group-hover:bg-white/20 dark:bg-teal-900/50 dark:group-hover:bg-white/20">
+                    <Wrench className="h-3.5 w-3.5 transition-transform duration-300 group-hover:rotate-12" />
+                  </span>
+                  <span className="relative">
+                    Explore More Tools
+                    <span className="absolute -bottom-0.5 left-0 h-[1.5px] w-0 bg-gradient-to-r from-teal-500 to-emerald-500 transition-all duration-300 group-hover:w-full" />
+                  </span>
+                  <svg
+                    className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
                 </span>
-                <div className="absolute inset-0 -translate-x-full rounded-full bg-gradient-to-r from-transparent via-white/30 to-transparent transition-transform duration-500 group-hover:translate-x-full" />
               </button>
             </div>
 
-            {/* Form with Glow Effect */}
+            {/* Form with Glow Effect - Fixed glass effect */}
             <div className="relative group/form">
-              <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-teal-400 via-emerald-400 to-blue-400 opacity-20 blur-xl transition-all duration-500 group-hover/form:opacity-40 dark:from-teal-600 dark:via-emerald-600 dark:to-blue-600" />
+              {/* Only one glow layer with proper blur */}
+              <div className="absolute -inset-0.5 rounded-2xl bg-gradient-to-r from-teal-400 via-emerald-400 to-blue-400 opacity-20 blur-xl transition-all duration-500 group-hover/form:opacity-30 dark:from-teal-600 dark:via-emerald-600 dark:to-blue-600" />
               
-             <div className="relative rounded-2xl border border-slate-200/80 bg-teal-500/30 p-2 backdrop-blur-xl transition-all duration-300 group-hover/form:border-teal-300/80 dark:border-slate-800/80 dark:bg-black/80 dark:group-hover/form:border-teal-700/80">
+              {/* Main form container with proper backdrop blur */}
+              <div className="relative rounded-2xl border border-slate-200/80 bg-white/40 p-2 backdrop-blur-md transition-all duration-300 group-hover/form:border-teal-300/80 dark:border-slate-800/80 dark:bg-black/50 dark:group-hover/form:border-teal-700/80">
                 <InstagramForm 
                   className="w-full" 
                   pastedUrl={pastedUrl}
@@ -181,7 +205,7 @@ export function Hero() {
               { icon: Zap, text: "Lightning Fast" },
               { icon: Download, text: "HD Quality" },
             ].map((item, index) => (
-              <div key={index} className="flex items-center z-50 gap-2.5 text-sm font-medium text-slate-600 dark:text-slate-400">
+              <div key={index} className="flex items-center z-20 gap-2.5 text-sm font-medium text-slate-600 dark:text-slate-400">
                 <div className="rounded-lg bg-teal-100 p-1.5 dark:bg-teal-900/50">
                   <item.icon className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400" />
                 </div>
@@ -211,7 +235,19 @@ export function Hero() {
         .marquee-container:hover .marquee-content {
           animation-play-state: paused;
         }
+        
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-20px);
+          }
+        }
+        .animate-float {
+          animation: float 6s ease-in-out infinite;
+        }
       `}</style>
     </section>
-  );
+  ); 
 }

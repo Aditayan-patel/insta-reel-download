@@ -44,6 +44,7 @@ export default function HomePage() {
   return (
     <div>
       <Hero />
+      <HowItWorks />
       
       <section
         id="tools"
@@ -79,7 +80,6 @@ export default function HomePage() {
       </section>
 
       <Features />
-      <HowItWorks />
       <Testimonials />
       <FrequentlyAsked />
     </div>
