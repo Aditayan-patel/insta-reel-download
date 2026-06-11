@@ -2,15 +2,15 @@ import { Metadata } from "next";
 
 export const siteConfig = {
   name: "ReelsDL",  // ✅ Changed from "Reelsdl" to "ReelsDL"
-  domain: "reelsdl.vercel.app",  // ✅ Fixed domain (.com se .app)
+  domain: "reelsdl.online",  // ✅ Fixed domain (.com se .app)
   shortName: "ReelsDL",  // ✅ Changed
   creator: "riad-azz",
   description:
     "Download Instagram reels, videos, and stories for free. No registration, no login required. Fast and HD quality downloads.",
   ogDescription:
     "Download Instagram reels and videos instantly. Free, fast, and no login required. Get HD quality downloads.",
-  url: "https://reelsdl.vercel.app",  // ✅ Fixed URL
-  keywords: ["instagram downloader", "reels downloader", "video downloader", "instagram saver"],
+  url: "https://reelsdl.online",  // ✅ Fixed URL
+  keywords: ["instagram downloader", "reels downloader", "video downloader", "instagram saver", "reel download", "reels download", "reels save"],
 };
 
 export const siteMetadata: Metadata = {

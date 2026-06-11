@@ -1,9 +1,15 @@
 "use client";
 
 import React from "react";
-
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Heart } from "lucide-react";
+
+const linkRoutes: Record<string, string> = {
+  terms: "/terms",
+  privacy: "/privacy",
+  contact: "/contact",
+};
 
 export function Footer() {
   const t = useTranslations("layouts.home.footer");
@@ -15,7 +21,7 @@ export function Footer() {
     <footer className="relative w-full border-t border-slate-200/80 bg-gradient-to-b from-slate-50 to-white dark:border-slate-800/80 dark:from-gray-950 dark:to-gray-900">
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]" />
-      
+
       {/* Subtle Top Gradient Line */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-teal-300/50 to-transparent dark:via-teal-700/50" />
 
@@ -39,12 +45,12 @@ export function Footer() {
           <nav className="flex items-center gap-1">
             {links.map((link, index) => (
               <React.Fragment key={link}>
-                <a
-                  href="#"
+                <Link
+                  href={linkRoutes[link] ?? "/"}
                   className="relative rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-all duration-200 hover:text-teal-600 hover:bg-teal-50/80 dark:text-slate-400 dark:hover:text-teal-400 dark:hover:bg-teal-950/50"
                 >
                   {t(`links.${link}`)}
-                </a>
+                </Link>
                 {index < links.length - 1 && (
                   <span className="text-slate-300 select-none dark:text-slate-700">
                     •

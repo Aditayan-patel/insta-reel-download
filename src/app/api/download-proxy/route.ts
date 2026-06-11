@@ -1,10 +1,9 @@
-// app/api/download-proxy/route.ts
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const fileUrl = searchParams.get("url");
-  const filename = searchParams.get("filename") || "instagram_media.mp4";
+  const filename = searchParams.get("filename") || "reelsdl_media.mp4";
 
   if (!fileUrl) {
     return NextResponse.json(
@@ -21,7 +20,6 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Instagram CDN URLs require these headers, otherwise 403/redirect milta hai
     const response = await fetch(fileUrl, {
       headers: {
         "User-Agent":
@@ -35,7 +33,6 @@ export async function GET(request: NextRequest) {
         "Sec-Fetch-Site": "cross-site",
         Connection: "keep-alive",
       },
-      // Redirects follow karo (Instagram CDN kabhi kabhi redirect karta hai)
       redirect: "follow",
     });
 
@@ -64,22 +61,14 @@ export async function GET(request: NextRequest) {
     }
 
     const headers = new Headers();
-
-    // Force browser ko file download karne ke liye
-    headers.set(
-      "Content-Disposition",
-      `attachment; filename="${encodeURIComponent(filename)}"`
-    );
+    headers.set("Content-Disposition", `attachment; filename="${filename}"`);
     headers.set("Content-Type", contentType);
 
     if (contentLength) {
       headers.set("Content-Length", contentLength);
     }
 
-    // Cache karo taaki baar baar request na jaye
     headers.set("Cache-Control", "public, max-age=3600");
-
-    // CORS headers agar same-origin se call ho
     headers.set("Access-Control-Allow-Origin", "*");
 
     return new NextResponse(stream, {
