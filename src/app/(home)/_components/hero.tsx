@@ -146,7 +146,7 @@ export function Hero() {
                   </span>
                   <span className="relative">
                     Explore More Tools
-                    <span className="absolute -bottom-0.5 left-0 h-[1.5px] w-0 bg-gradient-to-r from-white to-emerald-500 dark:from-white dark:to-emerald-500 transition-all duration-300 group-hover:w-full" />
+                    <span className="absolute -bottom-0.5 left-0 h-[1.5px] w-0 bg-gradient-to-r from-white/60 to-white/80 dark:from-white/60 dark:to-white/80 transition-all duration-300 group-hover:w-full" />
                   </span>
                   <svg
                     className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-0.5"

@@ -1,9 +1,9 @@
 import { Metadata } from "next";
 
 export const siteConfig = {
-  name: "ReelsDL",  // ✅ Changed from "Reelsdl" to "ReelsDL"
+  name: "ReelsdL",  // ✅ Changed from "Reelsdl" to "ReelsDL"
   domain: "reelsdl.online",  // ✅ Fixed domain (.com se .app)
-  shortName: "ReelsDL",  // ✅ Changed
+  // shortName: "ReelsdL",  // ✅ Changed
   creator: "riad-azz",
   description:
     "Download Instagram reels, videos, and stories for free. No registration, no login required. Fast and HD quality downloads.",

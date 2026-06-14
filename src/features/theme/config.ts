@@ -3,6 +3,6 @@ export const themes = {
   LIGHT: "light",
 } as const;
 
-export const DEFAULT_THEME = themes.LIGHT; // ⭐ DARK default
+export const DEFAULT_THEME = themes.DARK; // ⭐ DARK default
 
 export const themesList = [themes.DARK, themes.LIGHT] as const;
